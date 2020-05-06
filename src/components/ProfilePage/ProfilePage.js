@@ -1,9 +1,7 @@
-import React, { useContext } from "react";
-import { UserContext } from "../../providers/UserProvider";
+import React from "react";
 import {auth} from "../../firebase";
 
-const ProfilePage = () => {
-  const user = useContext(UserContext);
+const ProfilePage = (user) => {
   const {photoURL, displayName, email} = user;
   return (
     <div className = "mx-auto w-11/12 md:w-2/4 py-8 px-4 md:px-8">

@@ -4,11 +4,11 @@ import SignIn from "../SignIn/SignIn";
 import SignUp from "../SignUp/SignUp";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import PasswordReset from "../PasswordReset/PasswordReset";
-function Application() {
-  const user = null;
+function Application(user) {
+  console.log(user);
   return (
-    user ?
-      <ProfilePage />
+    user && user.email ?
+      <ProfilePage user={user} />
       :
       <Router>
         <SignUp path="signUp" />
