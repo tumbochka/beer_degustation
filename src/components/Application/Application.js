@@ -4,7 +4,8 @@ import SignIn from "../SignIn/SignIn";
 import SignUp from "../SignUp/SignUp";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import PasswordReset from "../PasswordReset/PasswordReset";
-function Application(user) {
+function Application(prop) {
+  const user = prop.user;
   console.log(user);
   return (
     user && user.email ?
