@@ -4,6 +4,7 @@ import SignIn from "../SignIn/SignIn";
 import SignUp from "../SignUp/SignUp";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import PasswordReset from "../PasswordReset/PasswordReset";
+import UntappdCallback from "../UntappdCallback/UntappdCallback";
 function Application(prop) {
   const user = prop.user;
 
@@ -15,6 +16,7 @@ function Application(prop) {
         <SignUp path="signUp" />
         <SignIn path="/" />
         <PasswordReset path = "passwordReset" />
+        <UntappdCallback path="callback" />
       </Router>
 
   );

@@ -1,9 +1,23 @@
-import React from "react";
-import UserProvider from "./providers/UserProvider";
+import  React, { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import Application from "./components/Application/Application";
+import {createUser} from "./persistence/Persistence";
 
-function App() {
-  return (
-    <UserProvider />
+const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async userAuth => {
+      const user = await createUser(userAuth);
+      setUser(user);
+    });
+  });
+
+  return(
+    <div>
+      <Application user = {user} />
+    </div>
   );
-}
+};
+
 export default App;

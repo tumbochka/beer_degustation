@@ -1,26 +1,42 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import { auth, generateUserDocument } from "../../firebase";
+import {createUser} from "../../persistence/Persistence";
+import {createUserWithEmailAndPassword} from "../../auth/Email";
+import config from "../../config";
+import {signInWithGoogle} from "../../auth/Google";
 
-const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
+const SignUp = (user = null, externalError = null) => {
+  const [email, setEmail] = useState(user ? user.email : "");
+  const [password, setPassword] = useState(user ? user.password : "");
+  const [firstName, setFirstName] = useState(user ? user.firstName : "");
+  const [lastName, setLastName] = useState(user ? user.lastName : "");
+  const [photoUrl, setPhotoUrl] = useState(user ? user.photoUrl : "");
+  const [untappdName, setUntappdName] = useState(user ? user.untappdName : "");
+  const [untappdAccessToken, setUntappdAccessToken] = useState(user ? user.untappdAccessToken : "");
+  const [isLadle, setIsLadle] = useState(user ? user.isLadle : "");
   const [error, setError] = useState(null);
 
   const createUserWithEmailAndPasswordHandler = async (event, email, password) => {
     event.preventDefault();
     try{
-      const {user} = await auth.createUserWithEmailAndPassword(email, password);
-      generateUserDocument(user, {displayName});
+      const {user} = await createUserWithEmailAndPassword(email, password)
+        .catch(error => {
+          setError("Error creating user: "+ error.message);
+        });
+      createUser(user, {firstName, lastName, photoUrl, untappdName, untappdAccessToken, isLadle});
     }
     catch(error){
-      setError('Error Signing up with email and password');
+      setError('Error Signing up with email and password: ' + error.message);
     }
 
     setEmail("");
     setPassword("");
-    setDisplayName("");
+    setFirstName("");
+    setLastName("");
+    setPhotoUrl("");
+    setUntappdName("");
+    setUntappdAccessToken("");
+    setIsLadle("");
   };
 
   const onChangeHandler = event => {
@@ -29,10 +45,23 @@ const SignUp = () => {
       setEmail(value);
     } else if (name === "userPassword") {
       setPassword(value);
-    } else if (name === "displayName") {
-      setDisplayName(value);
+    } else if (name === "firstName") {
+      setFirstName(value);
+    } else if (name === "photoUrl") {
+      setPhotoUrl(value);
+    } else if (name === 'untappdName') {
+      setUntappdName(value);
     }
   };
+
+  const populateDataFromUntappd = (event) => {
+    event.preventDefault();
+
+    const authenticateUrl =
+      `${config.untappdAuthenticateUrl}?client_id=${encodeURIComponent(config.untappdClientId)}&client_secret=${encodeURIComponent(config.untappdClitntSecret)}&response_type=code&redirect_url=callback`;
+    window.location.replace(authenticateUrl);
+  }
+
   return (
     <div className="mt-8">
       <h1 className="text-3xl mb-2 text-center font-bold">Sign Up</h1>
@@ -43,16 +72,28 @@ const SignUp = () => {
           </div>
         )}
         <form className="">
-          <label htmlFor="displayName" className="block">
-            Display Name:
+          <label htmlFor="firstName" className="block">
+            First Name:
           </label>
           <input
             type="text"
             className="my-1 p-1 w-full "
-            name="displayName"
-            value={displayName}
-            placeholder="E.g: Faruq"
-            id="displayName"
+            name="firstName"
+            value={firstName}
+            placeholder="E.g: Eugene"
+            id="firstName"
+            onChange={event => onChangeHandler(event)}
+          />
+          <label htmlFor="lastName" className="block">
+            Last Name:
+          </label>
+          <input
+            type="text"
+            className="my-1 p-1 w-full "
+            name="lastName"
+            value={lastName}
+            placeholder="E.g: Sodin"
+            id="lastName"
             onChange={event => onChangeHandler(event)}
           />
           <label htmlFor="userEmail" className="block">
@@ -63,7 +104,7 @@ const SignUp = () => {
             className="my-1 p-1 w-full"
             name="userEmail"
             value={email}
-            placeholder="E.g: faruq123@gmail.com"
+            placeholder="E.g: eugene@gmail.com"
             id="userEmail"
             onChange={event => onChangeHandler(event)}
           />
@@ -79,6 +120,31 @@ const SignUp = () => {
             id="userPassword"
             onChange={event => onChangeHandler(event)}
           />
+          <label htmlFor="photoUrl" className="block">
+            Photo Url:
+          </label>
+          <input
+            type="text"
+            className="my-1 p-1 w-full "
+            name="photoUrl"
+            value={photoUrl}
+            id="lastName"
+            onChange={event => onChangeHandler(event)}
+          />
+          <label htmlFor="photoUrl" className="block">
+            Untappd Name:
+          </label>
+          <input
+            type="text"
+            className="my-1 p-1 w-full "
+            name="untappdName"
+            value={untappdName}
+            id="untappdName"
+            onChange={event => onChangeHandler(event)}
+          />
+          <button onClick={event => populateDataFromUntappd(event)}>
+            Populate user data from Untappd
+          </button>
           <button
             className="bg-green-400 hover:bg-green-500 w-full py-2 text-white"
             onClick={event => {
@@ -91,6 +157,7 @@ const SignUp = () => {
         <p className="text-center my-3">or</p>
         <button
           className="bg-red-500 hover:bg-red-600 w-full py-2 text-white"
+          onClick={signInWithGoogle}
         >
           Sign In with Google
         </button>
