@@ -57,8 +57,9 @@ const SignUp = (user = null, externalError = null) => {
   const populateDataFromUntappd = (event) => {
     event.preventDefault();
 
+    const callbackUrl = window.location.protocol + '//' + window.location.host + '/callback';
     const authenticateUrl =
-      `${config.untappdAuthenticateUrl}?client_id=${encodeURIComponent(config.untappdClientId)}&client_secret=${encodeURIComponent(config.untappdClitntSecret)}&response_type=code&redirect_url=callback`;
+      `${config.untappdAuthenticateUrl}?client_id=${encodeURIComponent(config.untappdClientId)}&client_secret=${encodeURIComponent(config.untappdClitntSecret)}&response_type=code&redirect_url=${callbackUrl}`;
     window.location.replace(authenticateUrl);
   }
 
