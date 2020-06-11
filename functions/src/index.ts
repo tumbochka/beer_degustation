@@ -29,9 +29,9 @@ export const untappdAuthorize = functions.https.onRequest((request, response) =>
 
   rq(options, (err, resp, body) => {
    if (err) {
-    response.send(err);
+    response.send({error: err});
    } else {
-    response.send(body);
+    response.send({data: body});
    }
   });
  })
@@ -50,9 +50,9 @@ export const untappdFetchUserDetails = functions.https.onRequest((request, respo
 
   rq(options, (err, resp, body) => {
    if (err) {
-    response.send(err);
+    response.send({error: err});
    } else {
-    response.send(body);
+    response.send({data: body});
    }
   });
  })

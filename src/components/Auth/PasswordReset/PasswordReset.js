@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import {sendPasswordResetEmail} from "../../auth/Email";
+import {sendPasswordResetEmail} from "../../../auth/Email";
 
 const PasswordReset = () => {
   const [email, setEmail] = useState("");

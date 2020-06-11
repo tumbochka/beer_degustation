@@ -1,16 +1,20 @@
 import React from "react";
 import { Router } from "@reach/router";
-import SignIn from "../SignIn/SignIn";
-import SignUp from "../SignUp/SignUp";
-import ProfilePage from "../ProfilePage/ProfilePage";
-import PasswordReset from "../PasswordReset/PasswordReset";
+import SignIn from "../Auth/SignIn/SignIn";
+import SignUp from "../User/SignUp/SignUp";
+import ProfilePage from "../User/ProfilePage/ProfilePage";
+import PasswordReset from "../Auth/PasswordReset/PasswordReset";
 import UntappdCallback from "../UntappdCallback/UntappdCallback";
+import Edit from "../User/Edit/Edit";
 function Application(prop) {
   const user = prop.user;
 
   return (
     user && user.email ?
-      <ProfilePage user={user} />
+      <Router>
+        <ProfilePage user={user} path="/" />
+        <Edit user={user} path="Edit" />
+      </Router>
       :
       <Router>
         <SignUp path="signUp" />

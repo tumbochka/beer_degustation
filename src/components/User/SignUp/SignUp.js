@@ -1,29 +1,32 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import {createUser} from "../../persistence/Persistence";
-import {createUserWithEmailAndPassword} from "../../auth/Email";
-import config from "../../config";
-import {signInWithGoogle} from "../../auth/Google";
+import {createUser} from "../../../persistence/Persistence";
+import {createUserWithEmailAndPassword} from "../../../auth/Email";
+import config from "../../../config";
+import {signInWithGoogle} from "../../../auth/Google";
+import firebase from "firebase";
 
-const SignUp = (user = null, externalError = null) => {
-  const [email, setEmail] = useState(user ? user.email : "");
-  const [password, setPassword] = useState(user ? user.password : "");
-  const [firstName, setFirstName] = useState(user ? user.firstName : "");
-  const [lastName, setLastName] = useState(user ? user.lastName : "");
-  const [photoUrl, setPhotoUrl] = useState(user ? user.photoUrl : "");
-  const [untappdName, setUntappdName] = useState(user ? user.untappdName : "");
-  const [untappdAccessToken, setUntappdAccessToken] = useState(user ? user.untappdAccessToken : "");
-  const [isLadle, setIsLadle] = useState(user ? user.isLadle : "");
+const SignUp = (data) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
+  const [untappdName, setUntappdName] = useState("");
+  const [untappdAccessToken, setUntappdAccessToken] = useState("");
+  const [isLadle, setIsLadle] = useState("");
+  const [code, setCode] = useState(data.code ? data.code : null);
   const [error, setError] = useState(null);
+  const [isAuthRequestSent, setAuthRequestSent] = useState(false);
 
-  const createUserWithEmailAndPasswordHandler = async (event, email, password) => {
+  const createUserWithEmailAndPasswordHandler = async (event) => {
     event.preventDefault();
     try{
       const {user} = await createUserWithEmailAndPassword(email, password)
         .catch(error => {
           setError("Error creating user: "+ error.message);
         });
-      createUser(user, {firstName, lastName, photoUrl, untappdName, untappdAccessToken, isLadle});
+      createUser(user, {firstName, lastName, photoURL, untappdName, untappdAccessToken, isLadle});
     }
     catch(error){
       setError('Error Signing up with email and password: ' + error.message);
@@ -33,7 +36,7 @@ const SignUp = (user = null, externalError = null) => {
     setPassword("");
     setFirstName("");
     setLastName("");
-    setPhotoUrl("");
+    setPhotoURL("");
     setUntappdName("");
     setUntappdAccessToken("");
     setIsLadle("");
@@ -47,8 +50,10 @@ const SignUp = (user = null, externalError = null) => {
       setPassword(value);
     } else if (name === "firstName") {
       setFirstName(value);
-    } else if (name === "photoUrl") {
-      setPhotoUrl(value);
+    } else if (name === "lastName") {
+      setLastName(value);
+    } else if (name === "photoURL") {
+      setPhotoURL(value);
     } else if (name === 'untappdName') {
       setUntappdName(value);
     }
@@ -61,6 +66,48 @@ const SignUp = (user = null, externalError = null) => {
     const authenticateUrl =
       `${config.untappdAuthenticateUrl}?client_id=${encodeURIComponent(config.untappdClientId)}&client_secret=${encodeURIComponent(config.untappdClitntSecret)}&response_type=code&redirect_url=${callbackUrl}`;
     window.location.replace(authenticateUrl);
+  }
+
+  if (code) { // untapped callback returned code - performing authorization
+    const untappdAuthorize = firebase.functions().httpsCallable('untappdAuthorize');
+    const callbackUrl = window.location.protocol + '//' + window.location.host + '/callback';
+    if (false === isAuthRequestSent) {
+      console.log(code);
+      setAuthRequestSent(true);
+      untappdAuthorize({
+        url: config.untappdAuthorizeUrl,
+        clientId: config.untappdClientId,
+        clientSecret: config.untappdClitntSecret,
+        redirectUrl: callbackUrl,
+        code: code
+      }).then(result => {
+        const data = JSON.parse(result.data);
+        const accessToken = data.response.access_token;
+        const userDetailsUrl = config.untappdApiUrl + 'user/info/';
+        const untappdFetchUserDetails = firebase.functions().httpsCallable('untappdFetchUserDetails');
+        untappdFetchUserDetails({
+          url: userDetailsUrl,
+          accessToken: accessToken
+        }).then(result => {
+          const data = JSON.parse(result.data);
+          const untappdUser = data.response.user;
+          console.log(untappdUser);
+          setEmail(untappdUser.settings.email_address);
+          setLastName(untappdUser.last_name);
+          setFirstName(untappdUser.first_name)
+          setPhotoURL(untappdUser.user_avatar_hd);
+          setUntappdName(untappdUser.user_name);
+          setUntappdAccessToken(accessToken);
+        }).catch(error => {
+          console.log('auth error');
+          setError(error.message);
+        });
+      }).catch(error => {
+        console.log('auth error');
+        setError(error.message);
+      });
+    }
+    setCode(null);
   }
 
   return (
@@ -121,18 +168,18 @@ const SignUp = (user = null, externalError = null) => {
             id="userPassword"
             onChange={event => onChangeHandler(event)}
           />
-          <label htmlFor="photoUrl" className="block">
+          <label htmlFor="photoURL" className="block">
             Photo Url:
           </label>
           <input
             type="text"
             className="my-1 p-1 w-full "
-            name="photoUrl"
-            value={photoUrl}
+            name="photoURL"
+            value={photoURL}
             id="lastName"
             onChange={event => onChangeHandler(event)}
           />
-          <label htmlFor="photoUrl" className="block">
+          <label htmlFor="photoURL" className="block">
             Untappd Name:
           </label>
           <input
@@ -149,7 +196,7 @@ const SignUp = (user = null, externalError = null) => {
           <button
             className="bg-green-400 hover:bg-green-500 w-full py-2 text-white"
             onClick={event => {
-              createUserWithEmailAndPasswordHandler(event, email, password);
+              createUserWithEmailAndPasswordHandler(event);
             }}
           >
             Sign up
