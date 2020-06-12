@@ -4,8 +4,10 @@ const config = {
   untappdApiUrl: "https://api.untappd.com/v4/",
   untappdAuthenticateUrl: "https://untappd.com/oauth/authenticate/",
   untappdAuthorizeUrl: "https://untappd.com/oauth/authorize/",
-  untappdClientId: "21A86E4A8453F99FAEA02AB681E869114EE6F52C",
-  untappdClitntSecret: "F5B38868AE44D884D7FF063807C144CFBB906A89"
+  untappdClientId: process.env.REACT_APP_UNTAPPD_CLIENT_ID,
+  untappdClitntSecret: process.env.REACT_APP_UNTAPPD_CLIENT_SECRET,
+  googleClientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+  googleDeveloperKey: process.env.REACT_APP_GOOGLE_DEVELOPER_KEY
 };
 
 export default config;
