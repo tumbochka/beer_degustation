@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 
 import ReactGoogleSheets from 'react-google-sheets';
-import config from "../../../config";
+import config from "../config";
 import GoogleDocsPicker from "./GoogleDocPicker";
 
 const GoogleSheet = (data) => {
@@ -14,7 +14,10 @@ const GoogleSheet = (data) => {
         spreadsheetId={data.id}
         afterLoading={() => setLoaded(true)}
       >
-        {console.log('Your sheet data : ', this.props.getSheetsData(''))}
+        {isLoaded ?
+          console.log('Your sheet data : ', this.props.getSheetsData('')) :
+          <div>Loading...</div>
+        }
       </ReactGoogleSheets> :
         <GoogleDocsPicker />
     );

@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { Link } from "@reach/router";
-import {signInWithEmailAndPassword} from "../../../auth/Email";
-import {signInWithGoogle} from "../../../auth/Google";
+import {signInWithEmailAndPassword} from "../auth/Email";
+import {signInWithGoogle} from "../auth/Google";
 
 const SignIn = () => {
   const [email, setEmail] = useState('');

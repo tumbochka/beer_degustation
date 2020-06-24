@@ -1,10 +1,10 @@
 /** @jsx jsx */
 import React from "react";
-import {auth} from "../../../firebase";
+import {auth} from "../firebase";
 import { css, jsx } from '@emotion/core';
 import {Link} from "@reach/router";
 
-const ProfilePage = (data) => {
+const UserProfile = (data) => {
     const {photoURL, firstName, lastName, untappdName, email} = data.user;
   const logoPath = photoURL ?
     photoURL :
@@ -35,4 +35,4 @@ const ProfilePage = (data) => {
     </div>
   )
 };
-export default ProfilePage;
+export default UserProfile;

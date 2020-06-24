@@ -1,24 +1,34 @@
-import React from "react";
+import React, {useState} from "react";
 
 import GooglePicker from 'react-google-picker';
-import config from "../../../config";
+
+import config from "../config";
+import {getSheetData} from "../services/GoogleSheetApi";
 
 //qeh7X9boOseEuegdzVbY1eP7
 const GoogleDocsPicker = () => {
-    const fetchGoogleScheet = (data) => {
-    // const files = data[google.picker.Response.DOCUMENTS];
+  const [authToken, setAuthToken] = useState(null);
+
+  const fetchGoogleSheet = async (data) => {
     if ('picked' === data.action) {
       const doc = data.docs[0];
-      const id=doc['id'];
       console.log(doc);
+      console.log(await getSheetData(doc['id']));
     }
   }
+
+  const parseGoogleDoc = data => {
+    console.log(JSON.stringify(data, null, 2));
+  }
+
+  const parseError = error => console.log(error);
+
   return (
   <GooglePicker clientId={config.googleClientId}
               developerKey={config.googleDeveloperKey}
-              scope={['https://www.googleapis.com/auth/drive']}
-              onChange={data => fetchGoogleScheet(data)}
-              // onAuthenticate={token => setToken(token)}
+              scope={['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']}
+              onChange={data => fetchGoogleSheet(data)}
+              onAuthenticate={token => setAuthToken(token)}
               onAuthFailed={data => console.log('on auth failed:', data)}
               multiselect={false}
               navHidden={true}
@@ -26,7 +36,7 @@ const GoogleDocsPicker = () => {
               mimeTypes={['application/vnd.google-apps.spreadsheet']}
               query={'Дегустація'}
               viewId={'FOLDERS'}>
-</GooglePicker>
+ </GooglePicker>
   )
 };
 

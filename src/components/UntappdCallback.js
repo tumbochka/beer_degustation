@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "@reach/router"
 import { parse } from "query-string"
-import SignUp from "../User/SignUp/SignUp";
+import SignUp from "./SignUp";
 
 const UntappdCallback = () => {
   const location = useLocation();

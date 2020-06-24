@@ -7,7 +7,9 @@ const config = {
   untappdClientId: process.env.REACT_APP_UNTAPPD_CLIENT_ID,
   untappdClitntSecret: process.env.REACT_APP_UNTAPPD_CLIENT_SECRET,
   googleClientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-  googleDeveloperKey: process.env.REACT_APP_GOOGLE_DEVELOPER_KEY
+  googleDeveloperKey: process.env.REACT_APP_GOOGLE_DEVELOPER_KEY,
+  googleServiceAccountEmail: process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  googleServiceAccountKey: process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_KEY
 };
 
 export default config;

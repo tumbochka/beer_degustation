@@ -1,6 +1,6 @@
 import  React, { useEffect, useState } from "react";
 import { auth } from "./firebase";
-import Application from "./components/Application/Application";
+import Application from "./components/Application";
 import {createUser} from "./persistence/Persistence";
 
 const App = () => {

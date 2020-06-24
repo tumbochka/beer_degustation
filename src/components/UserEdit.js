@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import { navigate } from "@reach/router"
-import {updateUser} from "../../../persistence/Persistence";
+import {updateUser} from "../persistence/Persistence";
 
-const Edit = (data) => {
+const UserEdit = (data) => {
   const user = data.user;
 
   const [email, setEmail] = useState(user.email);
@@ -120,4 +120,4 @@ const Edit = (data) => {
   );
 }
 
-export default Edit;
+export default UserEdit;

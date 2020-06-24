@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "@reach/router";
-import {createUser} from "../../../persistence/Persistence";
-import {createUserWithEmailAndPassword} from "../../../auth/Email";
-import config from "../../../config";
-import {signInWithGoogle} from "../../../auth/Google";
-import firebase from "firebase";
+import {createUser} from "../persistence/Persistence";
+import {createUserWithEmailAndPassword} from "../auth/Email";
+import config from "../config";
+import {signInWithGoogle} from "../auth/Google";
+import firebase from "firebase.json";
 
 const SignUp = (data) => {
   const [email, setEmail] = useState("");

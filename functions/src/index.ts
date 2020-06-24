@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import * as rq from 'request';
 import * as cors from 'cors';
+import {fetchDegustationDataFromGoogleSheet} from "./googleSheetService";
 
 const corsHandler = cors({origin: true});
 
@@ -54,6 +55,15 @@ export const untappdFetchUserDetails = functions.https.onRequest((request, respo
    } else {
     response.send({data: body});
    }
+  });
+ })
+});
+
+export const getDegustationDataFromGoogleSheet = functions.https.onRequest((request, response) => {
+ corsHandler(request, response, () => {
+  const docId = request.body.id;
+  fetchDegustationDataFromGoogleSheet(docId).then(degustation => {
+   response.send({data: degustation})
   });
  })
 });
