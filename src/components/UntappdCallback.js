@@ -1,15 +1,15 @@
 import React from "react";
 import { useLocation } from "@reach/router"
 import { parse } from "query-string"
-import SignUp from "./SignUp";
+import UserProfile from "./UserProfile";
 
-const UntappdCallback = () => {
+const UntappdCallback = ({user}) => {
   const location = useLocation();
   const query = parse(location.search);
   const code = query.code;
 
   return (
-    <SignUp code={code} />
+    <UserProfile code={code} user={user} />
     );
 }
 

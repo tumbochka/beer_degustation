@@ -5,16 +5,11 @@ export const createUser = async (user, additionalData): User => {
   const userRef = firestore.doc(`users/${user.uid}`);
   const snapshot = await userRef.get();
   if (!snapshot.exists) {
-    const { firstName, lastName, email,  photoURL, untappdName, untappdAccessToken, isLadle } = user;
+    const { email,  photoURL } = user;
     try {
       await userRef.set({
-        firstName,
-        lastName,
         email,
         photoURL,
-        untappdName,
-        untappdAccessToken,
-        isLadle,
         ...additionalData
       });
     } catch (error) {
@@ -29,7 +24,7 @@ export const updateUser = async (user, additionalData) => {
   const userRef = firestore.doc(`users/${user.uid}`);
   const snapshot = await userRef.get();
   if (snapshot.exists) {
-    const { firstName, lastName, email,  photoURL, untappdName, untappdAccessToken, isLadle } = user;
+    const { firstName, lastName, email,  photoURL, untappdName, untappdAccessToken } = user;
     try {
       await userRef.update({
         firstName,
@@ -38,7 +33,6 @@ export const updateUser = async (user, additionalData) => {
         photoURL,
         untappdName,
         untappdAccessToken,
-        isLadle,
         ...additionalData
       });
     } catch (error) {
@@ -59,3 +53,7 @@ export const getUser = async (uid)   => {
     console.error("Error fetching user", error);
   }
 };
+
+export const getDegustations = () => {
+
+}

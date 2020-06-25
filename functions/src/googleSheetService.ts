@@ -1,14 +1,16 @@
 import {searchBeer} from "./untappdService";
-import {BeerItem, Degustation} from "./types";
+import {BeerItem} from "./types";
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 export const fillUpDoc = async (docId: string) => {
-  admin.initializeApp({
-    credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
-  });
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+    });
+  }
   const firestore = admin.firestore();
   const doc = new GoogleSpreadsheet(docId);
 
@@ -36,7 +38,6 @@ export const fillUpDoc = async (docId: string) => {
     if (name.value && brewery.value) {
       searchBeer(name.value, brewery.value, async  (beerItem) => {
         if (beerItem) {
-          console.log(beerItem);
           sheet.getCell(i, 0).value = beerItem.brewery.country_name;
           sheet.getCell(i, 3).value = beerItem.beer.beer_style;
           // sheet.getCell(i, 4).value = beerItem.beer.auth_rating;
@@ -62,9 +63,11 @@ export const fillUpDoc = async (docId: string) => {
 };
 
 export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
-  admin.initializeApp({
-    credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
-  });
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+    });
+  }
   const firestore = admin.firestore();
   const doc = new GoogleSpreadsheet(docId);
 
@@ -78,7 +81,7 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
 
   const degustation = {
     title: title.substring(5),
-    date: title.substring(0,5),
+    date: new Date( new Date().getFullYear() + '-' + title.substring(0,5)),
     beers:  new Array<BeerItem>()
   };
 

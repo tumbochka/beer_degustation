@@ -61,9 +61,13 @@ export const untappdFetchUserDetails = functions.https.onRequest((request, respo
 
 export const getDegustationDataFromGoogleSheet = functions.https.onRequest((request, response) => {
  corsHandler(request, response, () => {
-  const docId = request.body.id;
-  fetchDegustationDataFromGoogleSheet(docId).then(degustation => {
-   response.send({data: degustation})
-  });
+  const docId = request.body.data.id;
+  fetchDegustationDataFromGoogleSheet(docId)
+    .then(degustation => {
+     response.send({data: degustation});
+   })
+    .catch(e => {
+     response.send({error: e.message})
+    });
  })
 });

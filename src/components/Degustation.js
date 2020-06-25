@@ -1,8 +1,10 @@
 import React from "react";
 import Beer from "./Beer";
 
-const Degustation = (data) => {
-  const degustation = data.degustation;
+const Degustation = ({
+    degustation
+  }) => {
+
   const beers = degustation.beers;
 
   const renderBeers = () => {

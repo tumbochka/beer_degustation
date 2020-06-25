@@ -1,12 +1,12 @@
 import React from "react";
 import { Router } from "@reach/router";
 import SignIn from "./SignIn";
-import SignUp from "./SignUp";
 import UserProfile from "./UserProfile";
-import PasswordReset from "./PasswordReset";
 import UntappdCallback from "./UntappdCallback";
-import UserEdit from "./Edit";
+import UserEdit from "./UserEdit";
 import GoogleDocsPicker from "./GoogleDocPicker";
+import Degustations from "./Degustations";
+import Degustation from "./Degustation";
 
 function Application(prop) {
   const user = prop.user;
@@ -17,14 +17,13 @@ function Application(prop) {
         <UserProfile user={user} path="/" />
         <UserEdit user={user} path="Edit" />
         <GoogleDocsPicker path="GoogleDocsPicker" />
-
+        <Degustations path="Degustations" />
+        <Degustation path="Degustation" />
+        <UntappdCallback user={user} path="callback" />
       </Router>
       :
       <Router>
-        <SignUp path="signUp" />
         <SignIn path="/" />
-        <PasswordReset path = "passwordReset" />
-        <UntappdCallback path="callback" />
       </Router>
 
   );
