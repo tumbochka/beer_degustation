@@ -7,7 +7,7 @@ import firebase from "firebase";
 import Degustation from "./Degustation";
 
 //qeh7X9boOseEuegdzVbY1eP7
-const GoogleDocsPicker = () => {
+const DegustationSelector = () => {
   const [degustation, setDegustation] = useState(null);
 
   const fetchGoogleSheet = async (data) => {
@@ -43,4 +43,4 @@ const GoogleDocsPicker = () => {
   )
 };
 
-export default GoogleDocsPicker;
+export default DegustationSelector;

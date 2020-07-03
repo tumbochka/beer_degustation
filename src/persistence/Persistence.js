@@ -54,6 +54,17 @@ export const getUser = async (uid)   => {
   }
 };
 
-export const getDegustations = () => {
+export const getDegustations = async () => {
+  try {
+    const snapshot  = await firestore.collection('degustations').get();
 
+    return snapshot.docs.map(doc => {
+      return {
+        ...doc.data(),
+        ...{id: doc.id}
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching degustations", error);
+  }
 }

@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as rq from 'request';
 import * as cors from 'cors';
 import {fetchDegustationDataFromGoogleSheet} from "./googleSheetService";
+import {searchBeer} from "./untappdService";
 
 const corsHandler = cors({origin: true});
 
@@ -70,4 +71,14 @@ export const getDegustationDataFromGoogleSheet = functions.https.onRequest((requ
      response.send({error: e.message})
     });
  })
+});
+
+export const searchBeerOnUntappd = functions.https.onRequest((request, response) => {
+ corsHandler(request, response, () => {
+  const beerName = request.body.data.beer_name;
+  const breweryName = request.body.data.brewery_name;
+  searchBeer(breweryName, beerName, (resp) => {
+   response.send(resp);
+  });
+ });
 });

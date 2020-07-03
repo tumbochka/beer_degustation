@@ -64,7 +64,10 @@ const UserProfile = (data) => {
         <Link to="Edit" state={{ user: data.user}}>Edit User Profile</Link>
       </div>
       <div>
-        <Link to="GoogleDocsPicker"> Import a degustation</Link>
+        <Link to="DegustationSelector"> Import a degustation</Link>
+      </div>
+      <div>
+        <Link to="Degustations"> View degustations</Link>
       </div>
       <div>
       <button onClick={event => populateDataFromUntappd(event)}>

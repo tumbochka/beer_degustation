@@ -2,14 +2,15 @@ import React from "react";
 
 const Beer = ({
   beer,
-  onSelection
+  onSelection,
+  onSelectionText
  }) => {
 
   const renderSelectButton = () => {
     if(onSelection) {
       return (
         <div>
-          <button onClick={onSelection}>Select this beer</button>
+          <button onClick={onSelection}>{onSelectionText}</button>
         </div>
       );
     }
