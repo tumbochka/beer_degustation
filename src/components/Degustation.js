@@ -46,7 +46,7 @@ const Degustation = ({
 
     <div>
       {error ? <div>{error}</div> : ''}
-      <div>Degustation: {degustation.date}, {degustation.title}</div>
+      <div>Degustation: {new Date(degustation.date.seconds * 1000).toDateString()}, {degustation.title}</div>
       <div>{renderBeers()}</div>
     </div>
   );

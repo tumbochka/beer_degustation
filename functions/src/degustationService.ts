@@ -1,5 +1,7 @@
+import { v4 as uuidv4 } from 'uuid'
+
 import {searchBeer} from "./untappdService";
-import {BeerItem} from "./types";
+import {BeerItem, Degustation} from "./types";
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
@@ -90,18 +92,19 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   await sheet.loadCells('A1:I50');
   for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=sheet.getCell(i, 2).value) {
     const beerItem = {
-      volume: sheet.getCell(i, 8).value,
+      volume: double(sheet.getCell(i, 8).value),
+      id: uuidv4(),
       beer: {
         beer_name: sheet.getCell(i, 2).value,
-        beer_abv: sheet.getCell(i, 5).value,
-        beer_ibu: sheet.getCell(i, 7).value,
+        beer_abv: double(sheet.getCell(i, 5).value),
+        beer_ibu: double(sheet.getCell(i, 7).value),
         beer_style: sheet.getCell(i, 3).value,
-        rating: sheet.getCell(i, 4).value,
-        plato: sheet.getCell(i, 6).value,
+        rating: double(sheet.getCell(i, 4).value),
+        plato: double(sheet.getCell(i, 6).value),
       },
-      "brewery": {
-        "brewery_name": sheet.getCell(i, 1).value,
-        "country_name": sheet.getCell(i, 0).value,
+      brewery: {
+        brewery_name: sheet.getCell(i, 1).value,
+        country_name: sheet.getCell(i, 0).value,
       }
     };
     degustation.beers.push(<BeerItem>beerItem);
@@ -115,4 +118,38 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   }
 
   return degustation;
+}
+
+export const getDegustation = async (degustationId: string) => {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+    });
+  }
+
+  const firestore = admin.firestore();
+
+  const degustationDoc = await firestore.doc(`degustations/${degustationId}`).get();
+
+  return degustationDoc.data();
+}
+
+export const updateDegustation = async (degustationId: string, degustation: Degustation) => {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+    });
+  }
+
+  const firestore = admin.firestore();
+  const degustationRef = firestore.doc(`degustations/${degustationId}`);
+  await degustationRef.update(degustation);
+
+  return degustation;
+}
+
+const double = (num: any) => {
+  const res = parseFloat(num);
+
+  return isNaN(res) ? null : res;
 }

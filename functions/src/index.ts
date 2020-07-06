@@ -1,8 +1,9 @@
 import * as functions from 'firebase-functions';
 import * as rq from 'request';
 import * as cors from 'cors';
-import {fetchDegustationDataFromGoogleSheet} from "./googleSheetService";
+import {fetchDegustationDataFromGoogleSheet, getDegustation, updateDegustation} from "./degustationService";
 import {searchBeer} from "./untappdService";
+import {BeerItem, Rate} from "./types";
 
 const corsHandler = cors({origin: true});
 
@@ -80,5 +81,41 @@ export const searchBeerOnUntappd = functions.https.onRequest((request, response)
   searchBeer(breweryName, beerName, (resp) => {
    response.send(resp);
   });
+ });
+});
+
+export const rateBeer  = functions.https.onRequest((request, response) => {
+ corsHandler(request, response, () => {
+  const degustationId = request.body.data.degustationId;
+  const beerId = request.body.data.beerId;
+  const userId = request.body.data.userId;
+  const rate = request.body.data.rate;
+
+  getDegustation(degustationId)
+    .then(degustation => {
+      if(!degustation) {
+        throw new Error("Degustation doesn't exist");
+      }
+      const beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
+      if (!beer.rates) {
+        beer.rates = [];
+      }
+      const rateIndex = beer.rates.findIndex((rateItem: Rate) => rateItem.user === userId);
+      if (-1 === rateIndex) {
+       beer.rates.push({user: userId, rate: rate});
+      } else {
+       beer.rates[rateIndex] = {user: userId, rate: rate};
+      }
+      updateDegustation(degustationId, degustation)
+        .then(updatedDegustation => {
+          response.send({data: updatedDegustation});
+        })
+        .catch(e => {
+          response.send({error: e.message})
+        });
+    })
+    .catch(e => {
+      response.send({error: e.message})
+    });
  });
 });

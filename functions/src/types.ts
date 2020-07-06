@@ -1,4 +1,10 @@
+export interface Rate {
+  user: string,
+  rate: number
+}
+
 export interface BeerItem {
+  id: string,
   checkin_count: number,
   volume: number,
   beer: {
@@ -12,13 +18,14 @@ export interface BeerItem {
     rating: number,
     plato: number
   },
-  "brewery": {
-    "brewery_id": number,
-    "brewery_name": string,
-    "brewery_slug": string,
-    "brewery_label": string,
-    "country_name": string,
-  }
+  brewery: {
+    brewery_id: number,
+    brewery_name: string,
+    brewery_slug: string,
+    brewery_label: string,
+    country_name: string,
+  },
+  rates: Array<Rate>
 }
 
 export interface Degustation {
