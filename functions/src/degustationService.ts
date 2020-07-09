@@ -1,19 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import {searchBeer} from "./untappdService";
 import {BeerItem, Degustation} from "./types";
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-export const fillUpDoc = async (docId: string) => {
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
-    });
-  }
-  const firestore = admin.firestore();
+export const exportDegustationToGoogle = async (docId: string, degustation: Degustation) => {
   const doc = new GoogleSpreadsheet(docId);
 
   await doc.useServiceAccountAuth({
@@ -22,46 +15,22 @@ export const fillUpDoc = async (docId: string) => {
   });
 
   await doc.loadInfo();
-  const title = doc.title;
-
-  const degustation = {
-    title: title.substring(5),
-    date: title.substring(0,5),
-    beers:  new Array<BeerItem>()
-  };
 
   const sheet = doc.sheetsByIndex[0]
 
   await sheet.loadCells('A1:H40');
-  let name, brewery, notEmpty=true;
-  for (let i=1; notEmpty; ++i) {
-    name = sheet.getCell(i, 1);
-    brewery = sheet.getCell(i, 2);
-    if (name.value && brewery.value) {
-      searchBeer(name.value, brewery.value, async  (beerItem) => {
-        if (beerItem) {
-          sheet.getCell(i, 0).value = beerItem.brewery.country_name;
-          sheet.getCell(i, 3).value = beerItem.beer.beer_style;
-          // sheet.getCell(i, 4).value = beerItem.beer.auth_rating;
-          sheet.getCell(i, 5).value = beerItem.beer.beer_abv;
-          sheet.getCell(i,7).value = beerItem.beer.beer_ibu;
 
-          degustation.beers.push(beerItem);
-          await sheet.saveUpdatedCells();
-          const degustationRef = firestore.doc(`users/${docId}`);
-          const snapshot = await degustationRef.get();
-          if (snapshot.exists) {
-            await degustationRef.update(degustation);
-          } else {
-            await degustationRef.create(degustation);
-          }
-        }
-      });
+  degustation.beers.forEach((beer, index) => {
+    console.log(beer);
+    const i = index + 1;
+    sheet.getCell(i, 0).value = beer.brewery.country_name;
+    sheet.getCell(i, 3).value = beer.beer.beer_style;
+    sheet.getCell(i, 4).value = beer.beer.rating_score;
+    sheet.getCell(i, 5).value = beer.beer.beer_abv;
+    sheet.getCell(i,7).value = beer.beer.beer_ibu;
+  });
 
-    } else {
-      notEmpty = false;
-    }
-  }
+  await sheet.saveUpdatedCells();
 };
 
 export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {

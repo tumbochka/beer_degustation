@@ -16,7 +16,8 @@ export interface BeerItem {
     beer_description: string,
     beer_style: string,
     rating: number,
-    plato: number
+    plato: number,
+    rating_score: number
   },
   brewery: {
     brewery_id: number,

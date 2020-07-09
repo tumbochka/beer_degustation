@@ -68,3 +68,13 @@ export const getDegustations = async () => {
     console.error("Error fetching degustations", error);
   }
 }
+
+export const updateDegustation = async (degustation) => {
+  const doc = firestore.doc(`degustations/${degustation.id}`);
+  console.log(degustation);
+  try {
+    await doc.update(degustation);
+  } catch (error) {
+    console.error("Error updating degustation", error);
+  }
+}

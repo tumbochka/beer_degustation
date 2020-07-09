@@ -1,8 +1,13 @@
 import * as functions from 'firebase-functions';
 import * as rq from 'request';
 import * as cors from 'cors';
-import {fetchDegustationDataFromGoogleSheet, getDegustation, updateDegustation} from "./degustationService";
-import {searchBeer} from "./untappdService";
+import {
+  exportDegustationToGoogle,
+  fetchDegustationDataFromGoogleSheet,
+  getDegustation,
+  updateDegustation
+} from "./degustationService";
+import {getBeerDetails, searchBeer} from "./untappdService";
 import {BeerItem, Rate} from "./types";
 
 const corsHandler = cors({origin: true});
@@ -79,9 +84,28 @@ export const searchBeerOnUntappd = functions.https.onRequest((request, response)
   const beerName = request.body.data.beer_name;
   const breweryName = request.body.data.brewery_name;
   searchBeer(breweryName, beerName, (resp) => {
-   response.send(resp);
+   response.send({data: resp});
   });
  });
+});
+
+export const getBeerDetailsFromUntappd = functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    const bid = request.body.data.bid;
+    getBeerDetails(bid, (beer) => {
+      response.send({data: beer});
+    })
+  });
+});
+
+export const saveDegustationToGoogle = functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    const degustation = request.body.data.degustation;
+    exportDegustationToGoogle(degustation.id, degustation)
+      .then(() => response.send({data: true}))
+      .catch(e => response.send({error: e.message}))
+    ;
+  });
 });
 
 export const rateBeer  = functions.https.onRequest((request, response) => {

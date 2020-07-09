@@ -1,20 +1,8 @@
 import React from "react";
 
 const Beer = ({
-  beer,
-  onSelection,
-  onSelectionText
+  beer
  }) => {
-
-  const renderSelectButton = () => {
-    if(onSelection) {
-      return (
-        <div>
-          <button onClick={onSelection}>{onSelectionText}</button>
-        </div>
-      );
-    }
-  }
 
   return (
     <div>
@@ -25,10 +13,8 @@ const Beer = ({
         {beer.beer.bid} {beer.brewery.brewery_name} {beer.beer.beer_name} {beer.beer.beer_style} {beer.beer.beer_abv} {beer.beer.beer_ibu}
       </div>
       <div>
-        {beer.beer_description}
+        {beer.beer.beer_description}
       </div>
-
-      {renderSelectButton()}
 
     </div>
   );

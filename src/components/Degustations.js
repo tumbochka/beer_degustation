@@ -11,7 +11,8 @@ const Degustations = () => {
     return degustations.map(degustation => {
       return (
         <div key={degustation.id}>
-          {new Date(degustation.date.seconds * 1000).toDateString()} {degustation.title} {degustation.beers.length}
+          {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}
+          {degustation.title} {degustation.beers.length}
           <button onClick={() => {
             setDegustation(degustation);
           }

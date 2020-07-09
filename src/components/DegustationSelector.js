@@ -21,7 +21,7 @@ const DegustationSelector = () => {
         id: doc['id']
       })
         .then(result => {
-           setDegustation(result.data);
+           setDegustation({id: doc['id'], ...result.data});
            setMask(null);
           })
       ;
