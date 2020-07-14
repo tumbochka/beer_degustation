@@ -6,6 +6,7 @@ import {Link} from "@reach/router";
 import config from "../config";
 import {untappdAuthorize} from "../services/Untappd";
 import {updateUser} from "../persistence/Persistence";
+import {Container, Row, Col, Button} from "react-bootstrap";
 
 const UserProfile = (data) => {
   const [isAuthRequestSent, setAuthRequestSent] = useState(false);
@@ -37,13 +38,15 @@ const UserProfile = (data) => {
   }
 
   return (
-    <div className = "mx-auto w-11/12 md:w-2/4 py-8 px-4 md:px-8">
+    <div>
       {error !== null && (
-        <div className="py-4 bg-red-600 w-full text-white text-center mb-3">
+        <div>
           {error}
         </div>
       )}
-      <div className="flex border flex-col items-center md:flex-row md:items-start border-blue-400 px-3 py-4">
+      <Container>
+        <Row>
+          <Col>
         <div
           css={css`
           background: url(${logoPath})  no-repeat center center;
@@ -52,31 +55,40 @@ const UserProfile = (data) => {
           width: 200px;
         `}
         ></div>
+          </Col>
+        </Row>
+          <Row>
+            <Col>{firstName}</Col>
+            <Col>{lastName}</Col>
+          <Col>{untappdName}</Col>
+            <Col>{email}</Col>
+          </Row>
 
-        <div className = "md:pl-4">
-          <h2 className = "text-2xl font-semibold">{firstName}</h2>
-          <h2 className = "text-2xl font-semibold">{lastName}</h2>
-          <h2 className = "text-2xl font-semibold">{untappdName}</h2>
-          <h3 className = "italic">{email}</h3>
-        </div>
-      </div>
-      <div>
+
+      <Row>
+        <Col>
         <Link to="Edit" state={{ user: data.user}}>Edit User Profile</Link>
-      </div>
-      <div>
-        <Link to="DegustationSelector"> Import a degustation</Link>
-      </div>
-      <div>
-        <Link to="Degustations"> View degustations</Link>
-      </div>
-      <div>
-      <button onClick={event => populateDataFromUntappd(event)}>
-        Populate user data from Untappd
-      </button>
-      </div><div>
-      <button className = "w-full py-3 bg-red-600 mt-4 text-white" onClick = {() => {auth.signOut()}}>Sign out</button>
+        </Col>
+        <Col>
+          <Link to="DegustationSelector"> Import a degustation</Link>
+        </Col>
+        <Col>
+          <Link to="Degustations"> View degustations</Link>
+        </Col>
+        <Col>
+          <Button onClick={event => populateDataFromUntappd(event)}>
+            Populate user data from Untappd
+          </Button>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+        <Button onClick = {() => {auth.signOut()}}>Sign out</Button>
+        </Col>
+      </Row>
+      </Container>
     </div>
-    </div>
+
   )
 };
 export default UserProfile;

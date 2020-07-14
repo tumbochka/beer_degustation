@@ -6,6 +6,7 @@ import config from "../config";
 import firebase from "firebase";
 import Degustation from "./Degustation";
 import {navigate} from "@reach/router";
+import {Button} from "react-bootstrap";
 
 //qeh7X9boOseEuegdzVbY1eP7
 const DegustationSelector = () => {
@@ -31,11 +32,11 @@ const DegustationSelector = () => {
   return (
     <div>
       {mask ? <div>{mask}</div> : ''}
-      <button onClick={() => {navigate('/Degustations')}}>Degustations List</button>
+      <Button onClick={() => {navigate('/Degustations')}}>Degustations List</Button>
       {
         degustation ?
           <div>
-            <button onClick={() => {navigate('/DegustationSelector')}}>Import another</button>
+            <Button onClick={() => {navigate('/DegustationSelector')}}>Import another</Button>
             <Degustation degustation={degustation}/>
           </div>
           :

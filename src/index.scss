@@ -7,3 +7,28 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.row:nth-child(odd) {
+  background-color: #eeeeee;
+}
+
+.row:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.row:first-child {
+  font-weight: bold;
+  background-color: #ffffff;
+}
+
+.table-action {
+  width: 100%;
+  text-align: right;
+  font-weight: bold;
+}
+
+.caption {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}

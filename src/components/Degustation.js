@@ -1,117 +1,154 @@
 import React, {useState} from "react";
 import Beer from "./Beer";
-import firebase from "firebase";
-import {updateDegustation} from "../persistence/Persistence";
-
+import {Container, Button, Row, Col} from "react-bootstrap";
+import {updateBeer, updateBeerDetailsFromUntappd} from "../services/Beer";
+import {exportDegustationToGoogleSheet} from "../services/Degustation";
 
 const Degustation = ({
     degustation
   }) => {
 
   const [error, setError] = useState(null);
-  const [selectBeer, setSelectBeer] = useState(null);
+  const [beersToSelect, setBeersToSelect] = useState([]);
+  const [beerToSelect, setBeerToSelect] = useState(null);
+  const [mask, setMask] = useState(null);
+  const [updatedBeers, setUpdatedBeers] = useState([]);
+  const [fetchingBeerDetails, setFetchingBeerDetails] = useState(false);
 
   const beers = degustation.beers;
 
-  const updateBeer = (beer, beerId) => {
-    const getBeerDetailsFromUntappd = firebase.functions().httpsCallable('getBeerDetailsFromUntappd');
-    getBeerDetailsFromUntappd({
-      bid: beerId
-    })
-      .then(result => {
-        const beerFromUntappd = result.data;
-        console.log(beerFromUntappd);
-        degustation.beers = degustation.beers.map(beerItem => {
-          if(beerItem.id === beer.id) {
-            beerItem.brewery = beerFromUntappd.brewery;
-            beerItem.beer = {...beerItem.beer,
-              bid: beerFromUntappd.bid,
-              beer_abv: beerFromUntappd.beer_abv,
-              beer_name: beerFromUntappd.beer_name,
-              beer_label: beerFromUntappd.beer_label,
-              beer_ibu: beerFromUntappd.beer_ibu,
-              beer_description: beerFromUntappd.beer_description,
-              beer_style: beerFromUntappd.beer_style,
-              rating_score: beerFromUntappd.rating_score
-            }
-          }
-          return beerItem;
-        });
-        updateDegustation(degustation);
-      })
+  const pushToUpdatedBeers = beer => {
+    if('object' == typeof beer) {
+      const index = updatedBeers.findIndex(updatedBeer => beer.id === updatedBeer.id);
+      if (index >= 0) {
+        updatedBeers[index] = beer;
+      } else {
+        updatedBeers.push(beer);
+      }
 
-  }
-
-  const updateBeerDetailsFromUntappd = (beer) => {
-    console.log(degustation);
-    if(beer.brewery.brewery_name && beer.beer.beer_name) {
-      const searchBeerOnUntappd = firebase.functions().httpsCallable('searchBeerOnUntappd');
-      searchBeerOnUntappd({
-        beer_name: beer.beer.beer_name,
-        brewery_name: beer.brewery.brewery_name
-      })
-        .then(result => {
-          const beers = result.data;
-          if (! beers || 0 === beers.length) {
-            setError("Can't find beer: " + beer.brewery.brewery_name + ' ' + beer.beer.beer_name);
-          } else if (1 === beers.length) {
-            updateBeer(beer, beers[0].beer.bid);
-          } else {
-            setSelectBeer(beers.map(beerItem => {return {id: beer.id, ...beerItem}}));
-          }
-        })
-      ;
-    } else {
-      setError('Please fill up the brewery name and the beer name');
+      setUpdatedBeers(updatedBeers);
     }
   }
 
-  const exportDegustationToGoogleSheet = () => {
-    const saveDegustationToGoogle = firebase.functions().httpsCallable('saveDegustationToGoogle');
-    saveDegustationToGoogle({degustation: degustation});
+  const fetchAllBeersFromUntappd = async () => {
+    setMask('Searching beers on Untappd');
+    beers.forEach(async beer => {
+      try {
+        const searchBeers = await updateBeerDetailsFromUntappd(degustation, beer);
+        if (!searchBeers || 0 === searchBeers.length) { // has'n found a beer
+          pushToUpdatedBeers(beer);
+        } else if (1 === searchBeers.length) { //found exactly one beer
+          pushToUpdatedBeers({id: beer.id, ...searchBeers[0]});
+        } else { // found several beers
+          beersToSelect.push(searchBeers.map(searchBeer => {
+            return {id: beer.id, ...searchBeer}
+          }));
+        }
+      } catch (e) {
+        pushToUpdatedBeers(beer);
+      }
+    });
+  }
+
+  const fetchAllBeersDetailsFromUntappd = () => {
+    if (false === fetchingBeerDetails && beers.length === updatedBeers.length) {
+      setFetchingBeerDetails(true);
+      setMask('Fetching beer details...');
+      console.log(updatedBeers.filter(beer => beer.beer.bid));
+      Promise.all(updatedBeers.filter(beer => beer.beer.bid).map(beer => updateBeer(degustation, beer)))
+        .then(() => {
+          setUpdatedBeers([]);
+          setMask(null);
+          setFetchingBeerDetails(false);
+        });
+    }
   }
 
   const renderBeers = () => {
     return beers.map(beer => {
       return (
-        <div key={beer.id}>
-          <Beer beer={beer} />
-          {beer.beer.bid ? '' : <button
-            onClick={() => updateBeerDetailsFromUntappd(beer)}>Update from Untappd</button>}
-        </div>
+        <Beer
+          key={beer.id}
+          beer={beer}
+        />
       );
     });
   };
 
   const renderBeerForSelection = (beers) => {
     return beers.map(beer => {
+      const onClick = () => {
+            pushToUpdatedBeers(beer);
+            setBeerToSelect(null);
+          };
+
       return (
-        <div key={beer.id}>
-          <Beer beer={beer} />
-          <button onClick={() => {
-            updateBeer(beer, beer.beer.bid);
-            setSelectBeer(null);
-          }}>Select</button>}
-        </div>
+        <Beer
+          key={beer.beer.uid}
+          beer={beer}
+          onClick={onClick}
+          onClickCaption="Select"
+        />
       );
     });
+  }
+
+  fetchAllBeersDetailsFromUntappd();
+
+  if(beersToSelect.length > 0 && !beerToSelect) {
+    setBeerToSelect(beersToSelect.pop());
   }
 
   return (
 
     <div>
+      {mask ? <div>{mask}</div> : ''}
       {error ? <div>{error}</div> : ''}
-      {selectBeer
+      {beerToSelect
         ?
         <div>
-          <div>Please select a beer</div>
-          {renderBeerForSelection(selectBeer)}
+          <div className="caption">
+            <Col>Please select a beer</Col>
+          </div>
+          <Container>
+            <Row>
+              <Col>Label</Col>
+              <Col>Untappd ID</Col>
+              <Col>Brewery</Col>
+              <Col>Beer Name</Col>
+              <Col>Style</Col>
+              <Col>ABV</Col>
+              <Col>IBU</Col>
+              <Col>Description</Col>
+              <Col>Actions</Col>
+            </Row>
+            {renderBeerForSelection(beerToSelect)}
+          </Container>
         </div>
         :
         <div>
-          <div>Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}</div>
-          <div>{renderBeers()}</div>
-          <button onClick={exportDegustationToGoogleSheet}>Export to Google</button>
+          <div className="caption">
+            Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
+            <Button onClick={fetchAllBeersFromUntappd}>Update all beers from untappd</Button>
+          </div>
+          <Container>
+            <Row>
+              <Col>Label</Col>
+              <Col>Untappd ID</Col>
+              <Col>Brewery</Col>
+              <Col>Beer Name</Col>
+              <Col>Style</Col>
+              <Col>ABV</Col>
+              <Col>IBU</Col>
+              <Col>Description</Col>
+            </Row>
+            {renderBeers()}
+          </Container>
+          <Button onClick={() => {
+            setMask('Exporting degustation data to google sheet');
+            exportDegustationToGoogleSheet(degustation)
+              .then(() => setMask(null));
+          }}>Export to Google</Button>
         </div>
       }
     </div>

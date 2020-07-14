@@ -18,7 +18,7 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
 
   const sheet = doc.sheetsByIndex[0]
 
-  await sheet.loadCells('A1:H40');
+  await sheet.loadCells('A1:AG50');
 
   degustation.beers.forEach((beer, index) => {
     console.log(beer);
@@ -28,6 +28,7 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
     sheet.getCell(i, 4).value = beer.beer.rating_score;
     sheet.getCell(i, 5).value = beer.beer.beer_abv;
     sheet.getCell(i,7).value = beer.beer.beer_ibu;
+    sheet.getCell(i, 32).value = beer.beer.bid;
   });
 
   await sheet.saveUpdatedCells();
@@ -58,12 +59,13 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
 
   const sheet = doc.sheetsByIndex[0]
 
-  await sheet.loadCells('A1:I50');
+  await sheet.loadCells('A1:AG50');
   for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=sheet.getCell(i, 2).value) {
     const beerItem = {
       volume: double(sheet.getCell(i, 8).value),
       id: uuidv4(),
       beer: {
+        bid: sheet.getCell(i, 32).value,
         beer_name: sheet.getCell(i, 2).value,
         beer_abv: double(sheet.getCell(i, 5).value),
         beer_ibu: double(sheet.getCell(i, 7).value),
