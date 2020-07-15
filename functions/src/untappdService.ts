@@ -4,7 +4,7 @@ import {BeerItem} from "./types";
 const functions = require('firebase-functions');
 
 
-export const searchBeer = (breweryName: string, beerName: string, callback: (beers: Array<BeerItem> | null) => void) => {
+export const searchBeer = (breweryName: string, beerName: string, callback: (beers: Array<BeerItem>) => void) => {
   const untappdConfig = functions.config().untappd;
   const requestOptions = {
     url: untappdConfig.api_url + 'search/beer',
@@ -18,11 +18,9 @@ export const searchBeer = (breweryName: string, beerName: string, callback: (bee
   rq(requestOptions, (err, resp, body) => {
     if (!err){
       const response = JSON.parse(body).response;
-      if (response.beers.count>0) {
-        callback(response.beers.items);
-      }
+      callback(response.beers.items.concat(response.homebrew.items));
     }
-    callback(null);
+    callback([]);
   });
 }
 

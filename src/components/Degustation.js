@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import Beer from "./Beer";
 import {Container, Button, Row, Col} from "react-bootstrap";
-import {updateBeer, updateBeerDetailsFromUntappd} from "../services/Beer";
+import {updateBeer, searchBeerOnUntappd} from "../services/Beer";
 import {exportDegustationToGoogleSheet} from "../services/Degustation";
 
 const Degustation = ({
@@ -12,52 +12,50 @@ const Degustation = ({
   const [beersToSelect, setBeersToSelect] = useState([]);
   const [beerToSelect, setBeerToSelect] = useState(null);
   const [mask, setMask] = useState(null);
-  const [updatedBeers, setUpdatedBeers] = useState([]);
+  const [foundBeers, setFoundBeers] = useState([]);
   const [fetchingBeerDetails, setFetchingBeerDetails] = useState(false);
 
   const beers = degustation.beers;
 
-  const pushToUpdatedBeers = beer => {
+  const pushToFoundBeers = beer => {
     if('object' == typeof beer) {
-      const index = updatedBeers.findIndex(updatedBeer => beer.id === updatedBeer.id);
+      const index = foundBeers.findIndex(updatedBeer => beer.id === updatedBeer.id);
       if (index >= 0) {
-        updatedBeers[index] = beer;
+        foundBeers[index] = beer;
       } else {
-        updatedBeers.push(beer);
+        foundBeers.push(beer);
       }
-
-      setUpdatedBeers(updatedBeers);
     }
   }
 
-  const fetchAllBeersFromUntappd = async () => {
+  const searchAllBeersOnUntappd = async () => {
     setMask('Searching beers on Untappd');
     beers.forEach(async beer => {
       try {
-        const searchBeers = await updateBeerDetailsFromUntappd(degustation, beer);
+        const searchBeers = await searchBeerOnUntappd(degustation, beer);
         if (!searchBeers || 0 === searchBeers.length) { // has'n found a beer
-          pushToUpdatedBeers(beer);
+          pushToFoundBeers(beer);
         } else if (1 === searchBeers.length) { //found exactly one beer
-          pushToUpdatedBeers({id: beer.id, ...searchBeers[0]});
+          pushToFoundBeers({id: beer.id, ...searchBeers[0]});
         } else { // found several beers
           beersToSelect.push(searchBeers.map(searchBeer => {
-            return {id: beer.id, ...searchBeer}
+            return {id: beer.id, originalBeer: beer, ...searchBeer}
           }));
         }
       } catch (e) {
-        pushToUpdatedBeers(beer);
+        setError(e.message);
+        pushToFoundBeers(beer);
       }
     });
   }
 
   const fetchAllBeersDetailsFromUntappd = () => {
-    if (false === fetchingBeerDetails && beers.length === updatedBeers.length) {
+    if (false === fetchingBeerDetails && beers.length === foundBeers.length) {
       setFetchingBeerDetails(true);
       setMask('Fetching beer details...');
-      console.log(updatedBeers.filter(beer => beer.beer.bid));
-      Promise.all(updatedBeers.filter(beer => beer.beer.bid).map(beer => updateBeer(degustation, beer)))
+      Promise.all(foundBeers.filter(beer => beer.beer.bid).map(beer => updateBeer(degustation, beer)))
         .then(() => {
-          setUpdatedBeers([]);
+          setFoundBeers([]);
           setMask(null);
           setFetchingBeerDetails(false);
         });
@@ -78,7 +76,7 @@ const Degustation = ({
   const renderBeerForSelection = (beers) => {
     return beers.map(beer => {
       const onClick = () => {
-            pushToUpdatedBeers(beer);
+            pushToFoundBeers(beer);
             setBeerToSelect(null);
           };
 
@@ -102,13 +100,19 @@ const Degustation = ({
   return (
 
     <div>
-      {mask ? <div>{mask}</div> : ''}
-      {error ? <div>{error}</div> : ''}
+      {mask ? <div className="mask">{mask}</div> : ''}
+      {error ? <div className="error">{error}</div> : ''}
       {beerToSelect
         ?
         <div>
           <div className="caption">
             <Col>Please select a beer</Col>
+          </div>
+          <div className="sub-caption">
+            <Col>Original beer</Col>
+            <Col>
+              {beerToSelect[0].originalBeer.brewery.brewery_name + ' ' + beerToSelect[0].originalBeer.beer.beer_name}
+            </Col>
           </div>
           <Container>
             <Row>
@@ -129,7 +133,7 @@ const Degustation = ({
         <div>
           <div className="caption">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
-            <Button onClick={fetchAllBeersFromUntappd}>Update all beers from untappd</Button>
+            <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>
           </div>
           <Container>
             <Row>

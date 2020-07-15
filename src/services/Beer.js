@@ -29,27 +29,28 @@ export const updateBeer = (degustation, beer) => {
     })
 }
 
-export const updateBeerDetailsFromUntappd = (degustation, beer) => {
+export const searchBeerOnUntappd = (degustation, beer) => {
   return new Promise((resolve, reject) => {
     if(beer.beer.bid) {
       resolve([beer]);
-    }
-    if(!beer.brewery.brewery_name || !beer.beer.beer_name) {
-      reject('Please fill up the brewery name and the beer name');
-    }
-    const searchBeerOnUntappd = firebase.functions().httpsCallable('searchBeerOnUntappd');
-    searchBeerOnUntappd({
-      beer_name: beer.beer.beer_name,
-      brewery_name: beer.brewery.brewery_name
-    })
-      .then(result => {
-        const beers = result.data;
-        if (! beers || 0 === beers.length) {
-          reject("Can't find beer: " + beer.brewery.brewery_name + ' ' + beer.beer.beer_name);
-        } else {
-          resolve(beers);
-        }
+    } else {
+      if (!beer.brewery.brewery_name || !beer.beer.beer_name) {
+        reject('Please fill up the brewery name and the beer name');
+      }
+      const searchBeerOnUntappd = firebase.functions().httpsCallable('searchBeerOnUntappd');
+      searchBeerOnUntappd({
+        beer_name: beer.beer.beer_name,
+        brewery_name: beer.brewery.brewery_name
       })
+        .then(result => {
+          const beers = result.data;
+          if (!beers || 0 === beers.length) {
+            reject("Can't find beer: " + beer.brewery.brewery_name + ' ' + beer.beer.beer_name);
+          } else {
+            resolve(beers);
+          }
+        })
+    }
   });
 }
 
