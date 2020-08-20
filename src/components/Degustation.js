@@ -3,8 +3,10 @@ import Beer from "./Beer";
 import {Container, Button, Row, Col} from "react-bootstrap";
 import {updateBeer, searchBeerOnUntappd} from "../services/Beer";
 import {exportDegustationToGoogleSheet} from "../services/Degustation";
+import AskBeerRate from "./AskBeerRate";
 
 const Degustation = ({
+    user,
     degustation
   }) => {
 
@@ -14,6 +16,8 @@ const Degustation = ({
   const [mask, setMask] = useState(null);
   const [foundBeers, setFoundBeers] = useState([]);
   const [fetchingBeerDetails, setFetchingBeerDetails] = useState(false);
+  const [beerToRate, setBeerToRate] = useState(null);
+
 
   const beers = degustation.beers;
 
@@ -64,10 +68,15 @@ const Degustation = ({
 
   const renderBeers = () => {
     return beers.map(beer => {
+      const onClick = () => {
+        setBeerToRate(beer)
+      };
       return (
         <Beer
           key={beer.id}
           beer={beer}
+          onClick={onClick}
+          onClickCaption="Rate"
         />
       );
     });
@@ -131,6 +140,7 @@ const Degustation = ({
         </div>
         :
         <div>
+          { beerToRate ? <AskBeerRate degustation={degustation} beer={beerToRate} user={user} />: ''}
           <div className="caption">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
             <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>
@@ -145,6 +155,7 @@ const Degustation = ({
               <Col>ABV</Col>
               <Col>IBU</Col>
               <Col>Description</Col>
+              <Col>Actions</Col>
             </Row>
             {renderBeers()}
           </Container>

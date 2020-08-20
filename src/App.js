@@ -5,11 +5,16 @@ import {createUser} from "./persistence/Persistence";
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [previousUserAuth, setPreviousUserAuth] = useState(null);
 
   useEffect(() => {
     auth.onAuthStateChanged(async userAuth => {
-      const user = await createUser(userAuth);
-      setUser(user);
+      if(userAuth !== previousUserAuth) {
+        setPreviousUserAuth(userAuth);
+        const user = await createUser(userAuth);
+        console.log('Token ID changed: ', user);
+        setUser(user);
+      }
     });
   });
 

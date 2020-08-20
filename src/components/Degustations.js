@@ -4,7 +4,7 @@ import Degustation from "./Degustation";
 import {navigate} from "@reach/router";
 import {Container, Row, Col, Button} from "react-bootstrap";
 
-const Degustations = () => {
+const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
   const [degustation, setDegustation] = useState(null);
 
@@ -39,7 +39,7 @@ const Degustations = () => {
       {
         degustation ?
         <div>
-          <Degustation degustation={degustation} />
+          <Degustation degustation={degustation} user={user}/>
           <Button onClick={() => {setDegustation(null)}}>Close</Button>
         </div> : (
             degustations ?

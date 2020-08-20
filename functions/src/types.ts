@@ -1,12 +1,14 @@
 export interface Rate {
   user: string,
-  rate: number
+  rate: number,
+  shout: string
 }
 
 export interface BeerItem {
   id: string,
   checkin_count: number,
   volume: number,
+  picture: string,
   beer: {
     bid: number,
     beer_name: string,
@@ -32,5 +34,7 @@ export interface BeerItem {
 export interface Degustation {
   title: string,
   date: Date,
-  beers: Array<BeerItem>
+  beers: Array<BeerItem>,
+  users: Array<string>,
+  leading: string
 }

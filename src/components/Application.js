@@ -17,8 +17,8 @@ function Application(prop) {
         <UserProfile user={user} path="/" />
         <UserEdit user={user} path="Edit" />
         <DegustationSelector path="DegustationSelector" />
-        <Degustations path="Degustations" />
-        <Degustation path="Degustation" />
+        <Degustations user={user} path="Degustations" />
+        <Degustation user={user} path="Degustation" />
         <UntappdCallback user={user} path="callback" />
       </Router>
       :

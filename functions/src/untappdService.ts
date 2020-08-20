@@ -44,3 +44,28 @@ export const getBeerDetails = (bid: string, callback: (beer: BeerItem | null) =>
     callback(null);
   });
 }
+
+export const checkInBeer = (userAccessToken: string, beerId: string, rating: number, shout:string = "") => {
+  const untappdConfig = functions.config().untappd;
+  const date = new Date();
+  const requestOptions = {
+    url: untappdConfig.api_url + 'checkin/add',
+    qs: {
+      access_token: userAccessToken,
+    },
+    form: {
+      gmt_offset: date.getTimezoneOffset() / 60,
+      timezone: 'EEST',
+      bid: beerId,
+      shout: shout,
+      rating: rating
+    }
+  };
+console.log(requestOptions);
+  rq.post(requestOptions, (err, resp, body) => {
+    console.log(body);
+    if(err) {
+      console.log(err.message);
+    }
+  });
+}

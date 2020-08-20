@@ -11,11 +11,17 @@ import {Container, Row, Col, Button} from "react-bootstrap";
 const UserProfile = (data) => {
   const [isAuthRequestSent, setAuthRequestSent] = useState(false);
   const [error, setError] = useState(null);
-  const {photoURL, firstName, lastName, untappdName, email} = data.user;
+  const {photoURL, firstName, lastName, untappdName, email, photoUrl} = data.user;
   const code = data.code;
-  const logoPath = photoURL ?
-    photoURL :
-    'https://res.cloudinary.com/dqcsk8rsc/image/upload/v1577268053/avatar-1-bitmoji_upgwhc.png';
+
+  let logoPath;
+  if (photoUrl) {
+    logoPath = photoUrl;
+  } else if (photoURL) {
+    logoPath = photoURL;
+  } else {
+    logoPath = 'https://res.cloudinary.com/dqcsk8rsc/image/upload/v1577268053/avatar-1-bitmoji_upgwhc.png';
+  }
 
   const populateDataFromUntappd = (event) => {
     event.preventDefault();
@@ -54,7 +60,7 @@ const UserProfile = (data) => {
           height: 200px;
           width: 200px;
         `}
-        ></div>
+        > </div>
           </Col>
         </Row>
           <Row>

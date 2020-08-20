@@ -24,6 +24,8 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
     console.log(beer);
     const i = index + 1;
     sheet.getCell(i, 0).value = beer.brewery.country_name;
+    sheet.getCell(i, 1).value = beer.brewery.brewery_name;
+    sheet.getCell(i, 2).value = beer.beer.beer_name;
     sheet.getCell(i, 3).value = beer.beer.beer_style;
     sheet.getCell(i, 4).value = beer.beer.rating_score;
     sheet.getCell(i, 5).value = beer.beer.beer_abv;
@@ -65,7 +67,7 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
       volume: double(sheet.getCell(i, 8).value),
       id: uuidv4(),
       beer: {
-        bid: sheet.getCell(i, 32).value,
+        // bid: sheet.getCell(i, 32).value,
         beer_name: sheet.getCell(i, 2).value,
         beer_abv: double(sheet.getCell(i, 5).value),
         beer_ibu: double(sheet.getCell(i, 7).value),
