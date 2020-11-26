@@ -3,6 +3,7 @@ import {getDegustations} from "../persistence/Persistence";
 import Degustation from "./Degustation";
 import {navigate} from "@reach/router";
 import {Container, Row, Col, Button} from "react-bootstrap";
+import {onMessageListener} from "../firebase";
 
 const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
@@ -33,6 +34,16 @@ const Degustations = ({user}) => {
     getDegustations()
       .then(degustations => setDegustations(degustations));
   }
+
+
+  onMessageListener()
+    .then((payload) => {
+      if(payload.data && payload.data.degustation) {
+        setDegustation(payload.data.degustation);
+      }
+    })
+    .catch((err) => {console.log('Message error', err)});
+
   return (
 
     <div>

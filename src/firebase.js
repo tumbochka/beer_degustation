@@ -1,5 +1,6 @@
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from "firebase/app";
+import '@firebase/messaging';
 
 // If you enabled Analytics in your project, add the Firebase SDK for Analytics
 import "firebase/analytics";
@@ -22,6 +23,7 @@ firebase.initializeApp(firebaseConfig);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
+export const messaging = firebase.messaging();
 
 firestore.enablePersistence().catch(err => {
   if (err.code === 'failed-precondition') {
@@ -36,3 +38,22 @@ firestore.enablePersistence().catch(err => {
 });
 
 
+export const requestFirebaseNotificationPermission = () =>
+  new Promise((resolve, reject) => {
+    messaging
+      .requestPermission()
+      .then(() => messaging.getToken())
+      .then((firebaseToken) => {
+        resolve(firebaseToken);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+
+export const onMessageListener = () =>
+  new Promise((resolve) => {
+    messaging.onMessage((payload) => {
+      resolve(payload);
+    });
+  });

@@ -1,7 +1,8 @@
 import  React, { useEffect, useState } from "react";
-import { auth } from "./firebase";
+import {auth, requestFirebaseNotificationPermission} from "./firebase";
 import Application from "./components/Application";
 import {createUser} from "./persistence/Persistence";
+import firebase from "firebase";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -17,6 +18,12 @@ const App = () => {
       }
     });
   });
+
+  requestFirebaseNotificationPermission()
+    .then(token => {
+      const saveToken = firebase.functions().httpsCallable('addMessageToken');
+      saveToken({token: token});
+    });
 
   return(
     <div>

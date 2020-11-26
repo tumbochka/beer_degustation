@@ -36,5 +36,5 @@ export interface Degustation {
   date: Date,
   beers: Array<BeerItem>,
   users: Array<string>,
-  leading: string
+  leading: string|null
 }
