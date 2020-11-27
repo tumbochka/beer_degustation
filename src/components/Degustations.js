@@ -38,8 +38,9 @@ const Degustations = ({user}) => {
 
   onMessageListener()
     .then((payload) => {
-      if(payload.data && payload.data.degustation) {
-        setDegustation(payload.data.degustation);
+      const {body, data} = payload.data;
+      if ('Degustation update' === body) {
+        setDegustation(data);
       }
     })
     .catch((err) => {console.log('Message error', err)});

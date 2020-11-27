@@ -120,7 +120,8 @@ export const updateDegustation = async (degustationId: string, degustation: Degu
   const degustationRef = firestore.doc(`degustations/${degustationId}`);
   await degustationRef.update(degustation);
 
-  await sendNotificationToAllClients({degustation: degustation});
+  const message = {data: degustation, title: 'Degustation', body: 'Degustation update'};
+  await sendNotificationToAllClients(message);
 
   return degustation;
 }

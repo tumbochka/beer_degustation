@@ -14,8 +14,9 @@ export const sendNotificationToClient = (tokens: any, data: any) => {
   const messaging = admin.messaging();
   // Send a message to the devices corresponding to the provided
   // registration tokens.
+
   messaging
-    .sendMulticast({ tokens, data })
+    .sendMulticast({ tokens,   data})
     .then((response:any) => {
       // Response is an object of the form { responses: [] }
       const successes = response.responses.filter((r: any) => r.success === true)
@@ -55,14 +56,13 @@ export const getClientTokens = async () => {
     });
   }
   const firestore = admin.firestore();
-  const tokenRef = firestore.collection('clientTokens/');
+  const tokenRef = firestore.collection('clientTokens');
   const snapshot = await tokenRef.get();
 
   const tokens = new Array<string>();
 
-  snapshot.forEach((doc:any) => {
-    console.log('doc', doc);
-    tokens.push(doc.token);
+  snapshot.docs.forEach((doc:any) => {
+    tokens.push(doc.data().token);
   });
 
   return tokens;

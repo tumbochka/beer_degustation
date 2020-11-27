@@ -26,10 +26,10 @@ const Degustation = ({
       const index = foundBeers.findIndex(updatedBeer => beer.id === updatedBeer.id);
       if (index >= 0) {
         foundBeers[index] = beer;
-        setFoundBeers(foundBeers);
+        setFoundBeers([...foundBeers]);
       } else {
         foundBeers.push(beer);
-        setFoundBeers(foundBeers);
+        setFoundBeers([...foundBeers]);
       }
     }
   }

@@ -221,7 +221,14 @@ export const updateClientDegustation =  functions.https.onRequest((request, resp
       response.status(400).send('Only POST allowed');
     }
     const {degustation} = request.body.data;
-    updateDegustation(degustation.id, degustation);
+    updateDegustation(degustation.id, degustation)
+      .then(() => {
+        response.send({data: true});
+      })
+      .catch(e => {
+        response.status(500).send(e.message);
+      })
+    ;
   });
 });
 
