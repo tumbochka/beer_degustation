@@ -7,7 +7,8 @@ import AskBeerRate from "./AskBeerRate";
 
 const Degustation = ({
     user,
-    degustation
+    degustation,
+    sortCurrentDegustationBeers
   }) => {
 
   const [error, setError] = useState(null);
@@ -150,9 +151,13 @@ const Degustation = ({
               <Col>Label</Col>
               <Col>Untappd ID</Col>
               <Col>Brewery</Col>
-              <Col>Beer Name</Col>
+              <Col>Beer Name <div center><Button onClick={()=>{
+                sortCurrentDegustationBeers("beer.beer_name", "asc");
+              }}>Sort</Button></div></Col>
               <Col>Style</Col>
-              <Col>ABV</Col>
+              <Col>ABV <div center><Button onClick={()=>{
+                sortCurrentDegustationBeers("beer.beer_abv", "asc");
+              }}>Sort</Button></div></Col>
               <Col>IBU</Col>
               <Col>Description</Col>
               <Col>Actions</Col>

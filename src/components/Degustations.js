@@ -1,13 +1,21 @@
 import React, {useState}  from "react";
-import {getDegustations} from "../persistence/Persistence";
+import {getDegustation, getDegustations} from "../persistence/Persistence";
 import Degustation from "./Degustation";
 import {navigate} from "@reach/router";
 import {Container, Row, Col, Button} from "react-bootstrap";
+import {sortBeers} from "../services/Degustation";
+import {jsx} from "@emotion/core";
+import firebase from "../../firebase.json";
 
 const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
   const [degustation, setDegustation] = useState(null);
-
+  const refreshDegustation = async () => {
+      if (degustation) {
+          const newDegustation = await getDegustation(degustation.id);
+          setDegustation(newDegustation);
+      }
+  };
   const renderDegustations = () => {
     return degustations.map(degustation => {
       return (
@@ -24,10 +32,25 @@ const Degustations = ({user}) => {
               }
             }>View</Button>
           </Col>
+            <Col>
+                <Button onClick={() => {
+                    const registerUserForDegustation = firebase.functions().httpsCallable('registerUserForDegustation');
+                    registerUserForDegustation({degustationId:degustation.id, userId:user.id });
+                    setDegustation(degustation);
+                }}>
+                    Join degustation
+                </Button>
+            </Col>
         </Row>
       );
     });
   }
+
+  const sortCurrentDegustationBeers = (fieldName, direction) => {
+      if(degustation) {
+          setDegustation({...degustation, beers: sortBeers(degustation.beers, fieldName, direction)});
+      }
+    }
 
   if (null === degustations) {
     getDegustations()
@@ -39,7 +62,7 @@ const Degustations = ({user}) => {
       {
         degustation ?
         <div>
-          <Degustation degustation={degustation} user={user}/>
+          <Degustation degustation={degustation} user={user} sortCurrentDegustationBeers={sortCurrentDegustationBeers}/>
           <Button onClick={() => {setDegustation(null)}}>Close</Button>
         </div> : (
             degustations ?
@@ -66,3 +89,5 @@ const Degustations = ({user}) => {
 }
 
 export default Degustations;
+
+

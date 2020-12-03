@@ -16,3 +16,36 @@ export const rateBeer = (degustation, beer, user, rate, shout) => {
     shout: shout
   });
 }
+  export const sortBeers = (beers, fieldName, direction) =>{
+    return beers.sort(function(a, b){
+      console.log("a", resolvePath(a, fieldName));
+      console.log("b", resolvePath(b, fieldName));
+      if (resolvePath(a, fieldName)<resolvePath(b, fieldName) && direction === 'asc') {
+          return -1;
+      }
+      if (resolvePath(a, fieldName)>resolvePath(b, fieldName) && direction === 'asc') {
+          return 1;
+          }
+        if (resolvePath(a, fieldName)>resolvePath(b, fieldName) && direction === 'desc') {
+            return -1;
+        }
+        if (resolvePath(a, fieldName)<resolvePath(b, fieldName) && direction === 'desc') {
+            return 1;
+        }
+
+
+      return 0;
+
+
+
+    })
+
+
+
+
+}
+const resolvePath = (object, path, defaultValue) => path
+    .split(/[\.\[\]\'\"]/)
+    .filter(p => p)
+    .reduce((o, p) => o ? o[p] : defaultValue, object)
+

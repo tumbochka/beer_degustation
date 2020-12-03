@@ -8,6 +8,7 @@ import {untappdAuthorize} from "../services/Untappd";
 import {updateUser} from "../persistence/Persistence";
 import {Container, Row, Col, Button} from "react-bootstrap";
 
+
 const UserProfile = (data) => {
   const [isAuthRequestSent, setAuthRequestSent] = useState(false);
   const [error, setError] = useState(null);

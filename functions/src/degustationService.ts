@@ -62,12 +62,12 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   const sheet = doc.sheetsByIndex[0]
 
   await sheet.loadCells('A1:AG50');
-  for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=sheet.getCell(i, 2).value) {
+  for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=sheet.getCell(i, 2).value || sheet.getCell(i, 32).value) {
     const beerItem = {
       volume: double(sheet.getCell(i, 8).value),
       id: uuidv4(),
       beer: {
-        // bid: sheet.getCell(i, 32).value,
+        bid: sheet.getCell(i, 32).value,
         beer_name: sheet.getCell(i, 2).value,
         beer_abv: double(sheet.getCell(i, 5).value),
         beer_ibu: double(sheet.getCell(i, 7).value),
