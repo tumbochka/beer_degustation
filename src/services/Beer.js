@@ -9,24 +9,25 @@ export const updateBeer = (degustation, beer) => {
     .then(result => {
       const beerFromUntappd = result.data;
       console.log('beer from untappd', beerFromUntappd);
-      degustation.beers = degustation.beers.map(beerItem => {
-        if(beerItem.id === beer.id) {
-          beerItem.brewery = beerFromUntappd.brewery;
-          beerItem.beer = {...beerItem.beer,
-            bid: beerFromUntappd.bid,
-            beer_abv: beerFromUntappd.beer_abv,
-            beer_name: beerFromUntappd.beer_name,
-            beer_label: beerFromUntappd.beer_label,
-            beer_ibu: beerFromUntappd.beer_ibu,
-            beer_description: beerFromUntappd.beer_description,
-            beer_style: beerFromUntappd.beer_style,
-            rating_score: beerFromUntappd.rating_score
+      if(beerFromUntappd) {
+        degustation.beers = degustation.beers.map(beerItem => {
+          if(beerItem.id === beer.id) {
+            beerItem.brewery = beerFromUntappd.brewery;
+            beerItem.beer = {...beerItem.beer,
+              bid: beerFromUntappd.bid,
+              beer_abv: beerFromUntappd.beer_abv,
+              beer_name: beerFromUntappd.beer_name,
+              beer_label: beerFromUntappd.beer_label,
+              beer_ibu: beerFromUntappd.beer_ibu,
+              beer_description: beerFromUntappd.beer_description,
+              beer_style: beerFromUntappd.beer_style,
+              rating_score: beerFromUntappd.rating_score
+            }
           }
-        }
-        return beerItem;
-      });
-      updateDegustation(degustation);
-    })
+          return beerItem;
+        });
+        updateDegustation(degustation);
+    }})
 }
 
 export const searchBeerOnUntappd = (degustation, beer) => {

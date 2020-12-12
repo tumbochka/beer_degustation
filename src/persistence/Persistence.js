@@ -1,4 +1,5 @@
 import {firestore} from "../firebase";
+import firebase from "firebase";
 
 export const createUser = async (user, additionalData): User => {
   if (!user) return;
@@ -70,12 +71,12 @@ export const getDegustations = async () => {
 }
 
 export const updateDegustation = async (degustation) => {
-  const doc = firestore.doc(`degustations/${degustation.id}`);
-  console.log(degustation);
+  const updateClientDegustation = firebase.functions().httpsCallable('updateClientDegustation');
+  console.log('updating', degustation);
   try {
-    await doc.update(degustation);
-  } catch (error) {
-    console.error("Error updating degustation", error);
+    await updateClientDegustation({degustation: degustation});
+  } catch (err) {
+    console.error("Error updating degustation", err);
   }
 }
 export const getDegustation = async (degustationId) => {

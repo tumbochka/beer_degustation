@@ -10,6 +10,8 @@ import {
 import {checkInBeer, getBeerDetails, searchBeer} from "./untappdService";
 import {BeerItem, Rate} from "./types";
 import {getUser} from "./userService";
+import {upload} from "./upload";
+import {saveClientToken} from "./message";
 
 const corsHandler = cors({origin: true});
 
@@ -76,8 +78,8 @@ export const getDegustationDataFromGoogleSheet = functions.https.onRequest((requ
 
 export const searchBeerOnUntappd = functions.https.onRequest((request, response) => {
   corsHandler(request, response, () => {
-    const {beerName, breweryName} = request.body.data;
-    searchBeer(breweryName, beerName, (resp) => {
+    const {beer_name, brewery_name} = request.body.data;
+    searchBeer(brewery_name, beer_name, (resp) => {
       response.send({data: resp});
     });
   });
@@ -211,4 +213,47 @@ export const setDegustationLeading = functions.https.onRequest((request, respons
         response.status(500).send(e.message);
       });
   })
+});
+
+export const updateClientDegustation =  functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    if('POST' !== request.method) {
+      response.status(400).send('Only POST allowed');
+    }
+    const {degustation} = request.body.data;
+    updateDegustation(degustation.id, degustation)
+      .then(() => {
+        response.send({data: true});
+      })
+      .catch(e => {
+        response.status(500).send(e.message);
+      })
+    ;
+  });
+});
+
+export const uploadBeerPicture = functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    if('POST' !== request.method) {
+      response.status(400).send('Only POST allowed');
+    }
+    upload(request, response);
+  });
+});
+
+export const addMessageToken = functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+     const {token} = request.body.data;
+     if(!token) {
+       response.status(400).send('Token is missing');
+     }
+     saveClientToken(token)
+       .then(() => {
+         response.send({data: true});
+       })
+       .catch(e => {
+        response.status(500).send(e.message);
+      })
+     ;
+  });
 });

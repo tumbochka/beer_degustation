@@ -27,8 +27,10 @@ const Degustation = ({
       const index = foundBeers.findIndex(updatedBeer => beer.id === updatedBeer.id);
       if (index >= 0) {
         foundBeers[index] = beer;
+        setFoundBeers([...foundBeers]);
       } else {
         foundBeers.push(beer);
+        setFoundBeers([...foundBeers]);
       }
     }
   }
@@ -55,7 +57,11 @@ const Degustation = ({
   }
 
   const fetchAllBeersDetailsFromUntappd = () => {
+    console.log('fetching beers details', fetchingBeerDetails);
+    console.log('beers', beers.length);
+    console.log('found beers', foundBeers.length);
     if (false === fetchingBeerDetails && beers.length === foundBeers.length) {
+
       setFetchingBeerDetails(true);
       setMask('Fetching beer details...');
       Promise.all(foundBeers.filter(beer => beer.beer.bid).map(beer => updateBeer(degustation, beer)))
@@ -105,10 +111,10 @@ const Degustation = ({
 
   if(beersToSelect.length > 0 && !beerToSelect) {
     setBeerToSelect(beersToSelect.pop());
+    setBeersToSelect(beersToSelect);
   }
 
   return (
-
     <div>
       {mask ? <div className="mask">{mask}</div> : ''}
       {error ? <div className="error">{error}</div> : ''}

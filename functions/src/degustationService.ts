@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 
 import {BeerItem, Degustation} from "./types";
+import {sendNotificationToAllClients} from "./message";
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
@@ -21,7 +22,6 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
   await sheet.loadCells('A1:AG50');
 
   degustation.beers.forEach((beer, index) => {
-    console.log(beer);
     const i = index + 1;
     sheet.getCell(i, 0).value = beer.brewery.country_name;
     sheet.getCell(i, 1).value = beer.brewery.brewery_name;
@@ -56,13 +56,15 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   const degustation = {
     title: title.substring(5),
     date: new Date( new Date().getFullYear() + '-' + title.substring(0,5)),
-    beers:  new Array<BeerItem>()
+    beers:  new Array<BeerItem>(),
+    users: [],
+    leading: null
   };
 
   const sheet = doc.sheetsByIndex[0]
 
   await sheet.loadCells('A1:AG50');
-  for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=sheet.getCell(i, 2).value || sheet.getCell(i, 32).value) {
+  for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=(sheet.getCell(i, 2).value || sheet.getCell(i, 32).value)) {
     const beerItem = {
       volume: double(sheet.getCell(i, 8).value),
       id: uuidv4(),
@@ -117,6 +119,9 @@ export const updateDegustation = async (degustationId: string, degustation: Degu
   const firestore = admin.firestore();
   const degustationRef = firestore.doc(`degustations/${degustationId}`);
   await degustationRef.update(degustation);
+
+  const message = {data: degustation, title: 'Degustation', body: 'Degustation update'};
+  await sendNotificationToAllClients(message);
 
   return degustation;
 }
