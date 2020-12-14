@@ -30,7 +30,7 @@ export const updateBeer = (degustation, beer) => {
     }})
 }
 
-export const searchBeerOnUntappd = (degustation, beer) => {
+export const searchBeerOnUntappd = beer => {
   return new Promise((resolve, reject) => {
     if(beer.beer.bid) {
       resolve([beer]);
@@ -55,4 +55,8 @@ export const searchBeerOnUntappd = (degustation, beer) => {
   });
 }
 
+export const removeBeerFromDegustation = (degustation, beer) => {
+  degustation.beers = degustation.beers.filter(filterBeer => filterBeer.id !== beer.id);
 
+  return degustation;
+}

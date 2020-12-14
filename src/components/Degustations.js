@@ -1,16 +1,18 @@
 import React, {useState}  from "react";
 import {getDegustation, getDegustations} from "../persistence/Persistence";
-import Degustation from "./Degustation";
+import Degustation, {DEGUSTATION_TYPE_EDIT, DEGUSTATION_TYPE_TAKE_PART} from "./Degustation";
 import {navigate} from "@reach/router";
 import {Container, Row, Col, Button} from "react-bootstrap";
 import {sortBeers} from "../services/Degustation";
-import {jsx} from "@emotion/core";
-import firebase from "../../firebase.json";
+
+import firebase from "firebase";
 import {onMessageListener} from "../firebase";
+
 
 const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
   const [degustation, setDegustation] = useState(null);
+  const [degustationMode, setDegustationMode] = useState(null);
   const refreshDegustation = async () => {
       if (degustation) {
           const newDegustation = await getDegustation(degustation.id);
@@ -30,14 +32,17 @@ const Degustations = ({user}) => {
           </Col><Col>
             <Button onClick={() => {
                 setDegustation(degustation);
+                setDegustationMode(DEGUSTATION_TYPE_EDIT);
               }
-            }>View</Button>
+            }>Edit</Button>
           </Col>
             <Col>
-                <Button onClick={() => {
+                <Button onClick={async () => {
                     const registerUserForDegustation = firebase.functions().httpsCallable('registerUserForDegustation');
-                    registerUserForDegustation({degustationId:degustation.id, userId:user.id });
-                    setDegustation(degustation);
+                    registerUserForDegustation({degustationId:degustation.id, userId:user.uid })
+                        .then(result => setDegustation(result.data));
+
+                    setDegustationMode(DEGUSTATION_TYPE_TAKE_PART);
                 }}>
                     Join degustation
                 </Button>
@@ -74,7 +79,7 @@ const Degustations = ({user}) => {
       {
         degustation ?
         <div>
-          <Degustation degustation={degustation} user={user} sortCurrentDegustationBeers={sortCurrentDegustationBeers}/>
+          <Degustation degustation={degustation} user={user} mode={degustationMode} sortCurrentDegustationBeers={sortCurrentDegustationBeers}/>
           <Button onClick={() => {setDegustation(null)}}>Close</Button>
         </div> : (
             degustations ?

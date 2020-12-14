@@ -1,7 +1,7 @@
 import {firestore} from "../firebase";
 import firebase from "firebase";
 
-export const createUser = async (user, additionalData): User => {
+export const createUser = async (user, additionalData) => {
   if (!user) return;
   const userRef = firestore.doc(`users/${user.uid}`);
   const snapshot = await userRef.get();
@@ -79,6 +79,7 @@ export const updateDegustation = async (degustation) => {
     console.error("Error updating degustation", err);
   }
 }
+
 export const getDegustation = async (degustationId) => {
   const doc = firestore.doc(`degustations/${degustationId}`);
   try {

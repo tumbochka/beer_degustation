@@ -1,13 +1,18 @@
 import React, {useState} from "react";
 import Beer from "./Beer";
 import {Container, Button, Row, Col} from "react-bootstrap";
-import {updateBeer, searchBeerOnUntappd} from "../services/Beer";
+import {updateBeer, searchBeerOnUntappd, removeBeerFromDegustation} from "../services/Beer";
 import {exportDegustationToGoogleSheet} from "../services/Degustation";
 import AskBeerRate from "./AskBeerRate";
+import AddBeer from "./AddBeer";
+
+export const DEGUSTATION_TYPE_EDIT = 'edit';
+export const DEGUSTATION_TYPE_TAKE_PART = 'take_part';
 
 const Degustation = ({
     user,
     degustation,
+    mode,
     sortCurrentDegustationBeers
   }) => {
 
@@ -18,9 +23,8 @@ const Degustation = ({
   const [foundBeers, setFoundBeers] = useState([]);
   const [fetchingBeerDetails, setFetchingBeerDetails] = useState(false);
   const [beerToRate, setBeerToRate] = useState(null);
+  const [beers, setBeers] = useState(degustation.beers);
 
-
-  const beers = degustation.beers;
 
   const pushToFoundBeers = beer => {
     if('object' == typeof beer) {
@@ -39,7 +43,7 @@ const Degustation = ({
     setMask('Searching beers on Untappd');
     beers.forEach(async beer => {
       try {
-        const searchBeers = await searchBeerOnUntappd(degustation, beer);
+        const searchBeers = await searchBeerOnUntappd(beer);
         if (!searchBeers || 0 === searchBeers.length) { // has'n found a beer
           pushToFoundBeers(beer);
         } else if (1 === searchBeers.length) { //found exactly one beer
@@ -73,17 +77,30 @@ const Degustation = ({
     }
   }
 
+  const refreshBeers = () => {
+    setBeers([...beers]);
+  }
+
   const renderBeers = () => {
     return beers.map(beer => {
-      const onClick = () => {
-        setBeerToRate(beer)
-      };
+      let onClick, caption;
+      if(DEGUSTATION_TYPE_EDIT === mode) {
+        onClick = () => {
+          setBeers(removeBeerFromDegustation(degustation, beer).beers);
+        };
+        caption = 'Delete';
+      } else if(DEGUSTATION_TYPE_TAKE_PART === mode) {
+        onClick = () => {
+          setBeerToRate(beer)
+        };
+        caption = 'Rate';
+      }
       return (
         <Beer
           key={beer.id}
           beer={beer}
           onClick={onClick}
-          onClickCaption="Rate"
+          onClickCaption={caption}
         />
       );
     });
@@ -150,8 +167,9 @@ const Degustation = ({
           { beerToRate ? <AskBeerRate degustation={degustation} beer={beerToRate} user={user} />: ''}
           <div className="caption">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
-            <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>
+            { DEGUSTATION_TYPE_EDIT === mode ? <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button> :''}
           </div>
+          {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} /> : '' }
           <Container>
             <Row>
               <Col>Label</Col>
