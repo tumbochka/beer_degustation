@@ -7,6 +7,56 @@ const AddBeer = ({degustation, refreshBeers}) => {
     const [beer, setBeer] = useState(null);
     const [foundBeers, setFoundBeers] = useState([]);
     const [isSearching, setSearching] = useState(false);
+    const [values, setValues] = useState({
+        beerName: '',
+        breweryName: '',
+        beerIbu: 0,
+        beerAbv: 0,
+        beerStyle: '',
+        beerPlato: 0,
+        beerVolume: 0
+    });
+
+    const valuesToBeer = (newValues) => {
+        beer.beer.beer_name = newValues.beerName;
+        beer.beer.beer_abv = newValues.beerAbv;
+        beer.beer.beer_ibu = newValues.beerIbu;
+        beer.beer.beer_style = newValues.beerStyle;
+        beer.beer.plato = newValues.beerPlato;
+        beer.volume = newValues.beerVolume;
+        beer.brewery.brewery_name = newValues.breweryName;
+        setBeer(beer);
+    }
+
+    const beerToValues = (beer) => {
+        values.breweryName = beer.brewery.brewery_name;
+        values.beerVolume = beer.volume;
+        values.beerPlato = beer.beer.plato;
+        values.beerStyle = beer.beer.beer_style;
+        values.beerAbv = beer.beer.beer_abv;
+        values.beerName = beer.beer.beer_name;
+        values.beerIbu = beer.beer.beer_ibu;
+        setValues(values);
+    }
+
+    const clearValues = () => {
+        setValues({
+            beerName: '',
+            breweryName: '',
+            beerIbu: 0,
+            beerAbv: 0,
+            beerStyle: '',
+            beerPlato: 0,
+            beerVolume: 0
+        });
+    }
+
+
+    const handleInputChange = e => {
+        const {name, value} = e.target;
+        setValues({...values, [name]: value});
+        valuesToBeer({...values, [name]: value});
+    }
 
     const newBeer = () => {
         const newBeer = {
@@ -16,19 +66,19 @@ const AddBeer = ({degustation, refreshBeers}) => {
             picture: null,
             beer: {
                 bid: null,
-                beer_name: null,
+                beer_name:  null,
                 beer_label: null,
-                beer_abv: null,
-                beer_ibu: null,
+                beer_abv:  null,
+                beer_ibu:  null,
                 beer_description: null,
-                beer_style: null,
+                beer_style:  null,
                 rating: null,
-                plato: null,
+                plato:  null,
                 rating_score: null
             },
             brewery: {
                 brewery_id: null,
-                brewery_name: null,
+                brewery_name:  null,
                 brewery_slug: null,
                 brewery_label: null,
                 country_name: null,
@@ -51,6 +101,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
             searchBeerOnUntappd(beer)
                 .then(beers => {
                     setFoundBeers(beers);
+                    console.log('found beers', beers);
                     setSearching(false);
                 })
                 .catch(e => {
@@ -62,16 +113,15 @@ const AddBeer = ({degustation, refreshBeers}) => {
     const renderFoundBeers = (beers) => {
         return beers.map(foundBeer => {
             const onClick = () => {
-                beer.beer = foundBeer.beer;
-                beer.brewery = foundBeer.brewery;
-                setBeer(beer);
+                setBeer(foundBeer);
+                beerToValues(foundBeer);
                 setFoundBeers([]);
             };
 
             return (
                 <Beer
-                    key={beer.beer.uid}
-                    beer={beer}
+                    key={foundBeer.beer.uid}
+                    beer={foundBeer}
                     onClick={onClick}
                     onClickCaption="Select"
                 />
@@ -92,12 +142,13 @@ const AddBeer = ({degustation, refreshBeers}) => {
                         <Col sm="5">
                     <Form.Control
                         type="text"
-                        value={beer.brewery.brewery_name}
+                        name="breweryName"
+                        value={values.breweryName}
                         onChange={e => {
+                            handleInputChange(e);
                             const value = e.target.value;
-                            beer.brewery.brewery_name = value;
                             setTimeout(() => {
-                                if(beer.brewery.brewery_name == value) {
+                                if(beer.brewery.brewery_name === value) {
                                     searchBeer();
                                 }
                             }, 500);
@@ -111,10 +162,11 @@ const AddBeer = ({degustation, refreshBeers}) => {
                         <Col sm="5">
                     <Form.Control
                         type="text"
-                        value={beer.beer.beer_name}
+                        name="beerName"
+                        value={values.beerName}
                         onChange={e => {
+                            handleInputChange(e);
                             const value = e.target.value;
-                            beer.beer.beer_name = value;
                             setTimeout(() => {
                                 if(beer.beer.beer_name == value) {
                                     searchBeer();
@@ -132,10 +184,9 @@ const AddBeer = ({degustation, refreshBeers}) => {
                         <Col sm="2">
                     <Form.Control
                         type="number"
-                        value={beer.beer.beer_abv}
-                        onChange={e => {
-                            beer.beer.beer_abv = e.target.value;
-                        }}
+                        name="beerAbv"
+                        value={values.beerAbv}
+                        onChange={handleInputChange}
                     />
                         </Col>
                     <Form.Label column sm="1">
@@ -144,10 +195,9 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Col sm="2">
                     <Form.Control
                         type="number"
-                        value={beer.beer.beer_ibu}
-                        onChange={e => {
-                            beer.beer.beer_ibu = e.target.value;
-                        }}
+                        name="beerIbu"
+                        value={values.beerIbu}
+                        onChange={handleInputChange}
                     />
                     </Col>
                     <Form.Label column sm="1">
@@ -156,22 +206,20 @@ const AddBeer = ({degustation, refreshBeers}) => {
                         <Col sm="2">
                     <Form.Control
                         type="number"
-                        value={beer.volume}
-                        onChange={e => {
-                            beer.volume = e.target.value;
-                        }}
+                        name="beerVolume"
+                        value={values.beerVolume}
+                        onChange={handleInputChange}
                     />
                         </Col>
                     <Form.Label column sm="1">
-                        plato
+                        Plato
                     </Form.Label>
                         <Col sm="2">
                     <Form.Control
                         type="number"
-                        value={beer.beer.plato}
-                        onChange={e => {
-                            beer.beer.plato = e.target.value;
-                        }}
+                        name="beerPlato"
+                        value={values.beerPlato}
+                        onChange={handleInputChange}
                     />
                         </Col>
 
@@ -179,26 +227,27 @@ const AddBeer = ({degustation, refreshBeers}) => {
 
                    <Form.Group as={Row}>
                     <Form.Label column sm="1">
-                        beer_style
+                        Style
                     </Form.Label>
                        <Col sm="4">
                     <Form.Control
                         type="text"
-                        value={beer.beer.beer_style}
-                        onChange={e => {
-                            beer.beer.beer_style = e.target.value;
-                        }}
+                        name="beerStyle"
+                        value={values.beerStyle}
+                        onChange={handleInputChange}
                     />
                        </Col>
                     </Form.Group>
                 </Form>
                 <Button onClick={() => {
                     degustation.beers.push(beer);
-                    refreshBeers();
+                    refreshBeers(degustation.beers);
                     newBeer();
+                    clearValues();
                 }}>Add</Button>
                 <Button onClick={() => {
                     newBeer();
+                    clearValues();
                 }}>Clear</Button>
 
                 { foundBeers.length > 0 ?

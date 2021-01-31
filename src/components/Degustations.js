@@ -9,6 +9,7 @@ import firebase from "firebase";
 import {onMessageListener} from "../firebase";
 
 
+
 const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
   const [degustation, setDegustation] = useState(null);
@@ -18,8 +19,10 @@ const Degustations = ({user}) => {
           const newDegustation = await getDegustation(degustation.id);
           setDegustation(newDegustation);
       }
+
   };
   const renderDegustations = () => {
+
     return degustations.map(degustation => {
       return (
         <Row key={degustation.id}>
@@ -50,18 +53,29 @@ const Degustations = ({user}) => {
         </Row>
       );
     });
+
   }
 
+
   const sortCurrentDegustationBeers = (fieldName, direction) => {
+
       if(degustation) {
           setDegustation({...degustation, beers: sortBeers(degustation.beers, fieldName, direction)});
       }
     }
 
-  if (null === degustations) {
-    getDegustations()
-      .then(degustations => setDegustations(degustations));
-  }
+    if (null === degustations) {
+        getDegustations()
+            .then(degustations =>
+            {
+                const sortedDegustations = degustations.sort((a, b) =>  {
+                    const date1 = (a.date.seconds ? new Date(a.date.seconds * 1000) : new Date(a.date));
+                    const date2 = (b.date.seconds ? new Date(b.date.seconds * 1000) : new Date(b.date));
+                    return (date2 - date1);
+                });
+                setDegustations(sortedDegustations);
+            });
+    }
 
 
   onMessageListener()
@@ -104,6 +118,9 @@ const Degustations = ({user}) => {
 
   );
 }
+
+
+
 
 export default Degustations;
 

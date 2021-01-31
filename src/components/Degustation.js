@@ -77,7 +77,7 @@ const Degustation = ({
     }
   }
 
-  const refreshBeers = () => {
+  const refreshBeers = (beers) => {
     setBeers([...beers]);
   }
 
@@ -175,11 +175,11 @@ const Degustation = ({
               <Col>Label</Col>
               <Col>Untappd ID</Col>
               <Col>Brewery</Col>
-              <Col>Beer Name <div center><Button onClick={()=>{
+              <Col>Beer Name <div center="true"><Button onClick={()=>{
                 sortCurrentDegustationBeers("beer.beer_name", "asc");
               }}>Sort</Button></div></Col>
               <Col>Style</Col>
-              <Col>ABV <div center><Button onClick={()=>{
+              <Col>ABV <div center="true"><Button onClick={()=>{
                 sortCurrentDegustationBeers("beer.beer_abv", "asc");
               }}>Sort</Button></div></Col>
               <Col>IBU</Col>
