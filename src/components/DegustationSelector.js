@@ -4,7 +4,7 @@ import GooglePicker from 'react-google-picker';
 
 import config from "../config";
 import firebase from "firebase";
-import Degustation from "./Degustation";
+import Degustation, {DEGUSTATION_TYPE_EDIT} from "./Degustation";
 import {navigate} from "@reach/router";
 import {Button} from "react-bootstrap";
 import {DEGUSTATION_TYPE_EDIT} from "./Degustation";
@@ -40,7 +40,7 @@ const DegustationSelector = () => {
         degustation ?
           <div>
             <Button onClick={() => {navigate('/DegustationSelector')}}>Import another</Button>
-            <Degustation degustation={degustation}/>
+            <Degustation degustation={degustation} mode={DEGUSTATION_TYPE_EDIT}/>
           </div>
           :
           <GooglePicker clientId={config.googleClientId}
