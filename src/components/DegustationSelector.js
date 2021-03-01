@@ -7,7 +7,6 @@ import firebase from "firebase";
 import Degustation, {DEGUSTATION_TYPE_EDIT} from "./Degustation";
 import {navigate} from "@reach/router";
 import {Button} from "react-bootstrap";
-import {DEGUSTATION_TYPE_EDIT} from "./Degustation";
 import setDegustationMode from "./Degustations";
 
 //qeh7X9boOseEuegdzVbY1eP7
