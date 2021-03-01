@@ -3,9 +3,19 @@ import {Row, Col, Button, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Beer = ({
     beer,
-    onClick,
-    onClickCaption
+    // onClick,
+    // onClickCaption
+    buttons,
   }) => {
+    const renderButtons = () => {
+        return buttons.map(
+            button => {
+                return <Col>
+                    <Button onClick={button.onClick}>{button.onClickCaption}</Button>
+            </Col>
+            }
+       )
+    }
   const renderTooltip = (props) => {
     return (
       <Tooltip id={"tooltip" + beer.id} {...props}>
@@ -44,12 +54,7 @@ const Beer = ({
         </div>
       </OverlayTrigger>
       </Col>
-      {onClick ?
-        <Col>
-          <Button onClick={onClick}>{onClickCaption}</Button>
-        </Col>
-        : ''
-      }
+      {renderButtons() }
     </Row>
   );
 }

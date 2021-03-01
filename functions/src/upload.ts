@@ -9,7 +9,7 @@ export const upload = (req: any, resp: any) => {
   const admin = require("firebase-admin");
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
 

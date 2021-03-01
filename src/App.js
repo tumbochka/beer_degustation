@@ -19,11 +19,11 @@ const App = () => {
     });
   });
 
-  requestFirebaseNotificationPermission()
-    .then(token => {
-      const saveToken = firebase.functions().httpsCallable('addMessageToken');
-      saveToken({token: token});
-    });
+  // requestFirebaseNotificationPermission()
+  //   .then(token => {
+  //     const saveToken = firebase.functions().httpsCallable('addMessageToken');
+  //     saveToken({token: token});
+  //   });
 
   return(
     <div>

@@ -30,6 +30,53 @@ export const updateBeer = (degustation, beer) => {
     }})
 }
 
+export const fetchBeerDetails = async (bid) => {
+  const getBeerDetailsFromUntappd = firebase.functions().httpsCallable('getBeerDetailsFromUntappd');
+  const result =  await getBeerDetailsFromUntappd({
+    bid: bid
+  });
+  if(result && result.data) {
+    const beerFromUntappd = result.data;
+    const beerItem = {};
+    beerItem.brewery = beerFromUntappd.brewery;
+    beerItem.beer = {
+      bid: beerFromUntappd.bid,
+      beer_abv: beerFromUntappd.beer_abv,
+      beer_name: beerFromUntappd.beer_name,
+      beer_label: beerFromUntappd.beer_label,
+      beer_ibu: beerFromUntappd.beer_ibu,
+      beer_description: beerFromUntappd.beer_description,
+      beer_style: beerFromUntappd.beer_style,
+      rating_score: beerFromUntappd.rating_score
+    }
+
+    return beerItem;
+  }
+
+  return null;
+
+
+
+}
+
+//export const searchOnUntappd = search =>
+export const searchOnUntappd = search => {
+  return new Promise((resolve, reject) => {
+    const searchOnUntappd = firebase.functions().httpsCallable('searchOnUntappd');
+    searchOnUntappd({
+      searchStr: search
+    })
+        .then(result => {
+          const beers = result.data;
+          if (!beers || 0 === beers.length) {
+            reject("Can't find beer: " + search);
+          } else {
+            resolve(beers);
+          }
+        })
+  })
+}
+
 export const searchBeerOnUntappd = beer => {
   return new Promise((resolve, reject) => {
     if(beer.beer.bid) {
@@ -57,6 +104,6 @@ export const searchBeerOnUntappd = beer => {
 
 export const removeBeerFromDegustation = (degustation, beer) => {
   degustation.beers = degustation.beers.filter(filterBeer => filterBeer.id !== beer.id);
-
+  updateDegustation(degustation);
   return degustation;
 }

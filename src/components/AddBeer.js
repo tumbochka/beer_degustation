@@ -1,7 +1,9 @@
 import React, {useState} from "react";
 import {Form, Button, Col, Row} from "react-bootstrap";
 import Beer from "./Beer";
-import {searchBeerOnUntappd} from "../services/Beer";
+import {fetchBeerDetails, searchBeerOnUntappd} from "../services/Beer";
+import {searchOnUntappd} from "../services/Beer";
+import {updateDegustation} from "../persistence/Persistence";
 
 const AddBeer = ({degustation, refreshBeers}) => {
     const [beer, setBeer] = useState(null);
@@ -14,7 +16,8 @@ const AddBeer = ({degustation, refreshBeers}) => {
         beerAbv: 0,
         beerStyle: '',
         beerPlato: 0,
-        beerVolume: 0
+        beerVolume: 0,
+        search: '',
     });
 
     const valuesToBeer = (newValues) => {
@@ -47,7 +50,8 @@ const AddBeer = ({degustation, refreshBeers}) => {
             beerAbv: 0,
             beerStyle: '',
             beerPlato: 0,
-            beerVolume: 0
+            beerVolume: 0,
+            search: ''
         });
     }
 
@@ -92,6 +96,35 @@ const AddBeer = ({degustation, refreshBeers}) => {
         newBeer();
     }
 
+    const search = () => {
+        if(isSearching) {
+            return;
+        }
+        if(values.search && values.search.length > 3) {
+            setSearching(true);
+            if(isNaN(values.search)) {
+                searchOnUntappd(values.search)
+                    .then(beers => {
+                        setFoundBeers(beers);
+                        console.log('found beers', beers);
+                        setSearching(false);
+                    })
+                    .catch(e => {
+                        setSearching(false);
+                    });
+            } else {
+                fetchBeerDetails(values.search)
+                    .then(beer => {
+                        if(beer) {
+                            setFoundBeers([beer]);
+                            console.log('found beer', beer);
+                        }
+                        setSearching(false);
+                    })
+            }
+        }
+    }
+
     const searchBeer = () => {
         if(isSearching) {
             return;
@@ -122,8 +155,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                 <Beer
                     key={foundBeer.beer.uid}
                     beer={foundBeer}
-                    onClick={onClick}
-                    onClickCaption="Select"
+                    buttons={ [{ onClick: onClick, onClickCaption: "Select"}] }
                 />
             );
         });
@@ -136,6 +168,27 @@ const AddBeer = ({degustation, refreshBeers}) => {
                 <h3>Add beer</h3>
                 <Form>
                     <Form.Group as={Row}>
+                        <Form.Label column sm="1">
+                            Search
+                        </Form.Label>
+                        <Col sm="shrink">
+                            <Form.Control
+                                type="text"
+                                name="search"
+                                value={values.search}
+                                onChange={e => {
+                                    handleInputChange(e);
+                                    //const value = e.target.value;
+                                    search();
+                                    // setTimeout(() => {
+                                    //     if(values.search === value) {
+                                    //         search();
+                                    //     }
+                                    // }, 500);
+
+                                }}
+                            />
+                        </Col>
                     <Form.Label column sm="1">
                         Brewery Name
                     </Form.Label>
@@ -244,6 +297,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     refreshBeers(degustation.beers);
                     newBeer();
                     clearValues();
+                    updateDegustation(degustation);
                 }}>Add</Button>
                 <Button onClick={() => {
                     newBeer();
@@ -263,5 +317,6 @@ const AddBeer = ({degustation, refreshBeers}) => {
         </div>
     )
 }
+
 
 export default AddBeer;

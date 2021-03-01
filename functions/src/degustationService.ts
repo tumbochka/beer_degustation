@@ -29,7 +29,9 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
     sheet.getCell(i, 3).value = beer.beer.beer_style;
     sheet.getCell(i, 4).value = beer.beer.rating_score;
     sheet.getCell(i, 5).value = beer.beer.beer_abv;
+    sheet.getCell(i, 6).value = beer.beer.plato;
     sheet.getCell(i,7).value = beer.beer.beer_ibu;
+    sheet.getCell(i,8).value = beer.volume;
     sheet.getCell(i, 32).value = beer.beer.bid;
   });
 
@@ -39,7 +41,7 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
 export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
   const firestore = admin.firestore();
@@ -98,7 +100,7 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
 export const getDegustation = async (degustationId: string) => {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
 
@@ -112,7 +114,7 @@ export const getDegustation = async (degustationId: string) => {
 export const updateDegustation = async (degustationId: string, degustation: Degustation) => {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
 

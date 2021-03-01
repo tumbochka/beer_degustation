@@ -99,8 +99,8 @@ const Degustation = ({
         <Beer
           key={beer.id}
           beer={beer}
-          onClick={onClick}
-          onClickCaption={caption}
+          buttons={ [{ onClick: onClick,
+            onClickCaption: caption}] }
         />
       );
     });
@@ -117,8 +117,8 @@ const Degustation = ({
         <Beer
           key={beer.beer.uid}
           beer={beer}
-          onClick={onClick}
-          onClickCaption="Select"
+          buttons={ [{ onClick: onClick,
+            onClickCaption: "Select"}] }
         />
       );
     });

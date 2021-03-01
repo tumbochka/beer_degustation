@@ -7,7 +7,7 @@ import {
   getDegustation,
   updateDegustation
 } from "./degustationService";
-import {checkInBeer, getBeerDetails, searchBeer} from "./untappdService";
+import {checkInBeer, getBeerDetails, search, searchBeer} from "./untappdService";
 import {BeerItem, Rate} from "./types";
 import {getUser} from "./userService";
 import {upload} from "./upload";
@@ -74,6 +74,16 @@ export const getDegustationDataFromGoogleSheet = functions.https.onRequest((requ
         response.send({error: e.message})
       });
   })
+});
+
+//export const searchOnUntappd =
+export const searchOnUntappd = functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    const {searchStr} = request.body.data;
+    search(searchStr, (resp) => {
+      response.send({data: resp});
+    });
+  });
 });
 
 export const searchBeerOnUntappd = functions.https.onRequest((request, response) => {

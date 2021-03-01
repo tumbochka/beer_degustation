@@ -8,7 +8,7 @@ export const sendNotificationToAllClients= async (data: any) => {
 export const sendNotificationToClient = (tokens: any, data: any) => {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
   const messaging = admin.messaging();
@@ -36,7 +36,7 @@ export const sendNotificationToClient = (tokens: any, data: any) => {
 export const saveClientToken = async (token: string) => {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
   const firestore = admin.firestore();
@@ -52,7 +52,7 @@ export const saveClientToken = async (token: string) => {
 export const getClientTokens = async () => {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert(require('../key/beer-degustation-firebase-adminsdk-7kx3n-29d82c679a.json'))
+      credential: admin.credential.applicationDefault()
     });
   }
   const firestore = admin.firestore();

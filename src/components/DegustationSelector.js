@@ -7,6 +7,8 @@ import firebase from "firebase";
 import Degustation from "./Degustation";
 import {navigate} from "@reach/router";
 import {Button} from "react-bootstrap";
+import {DEGUSTATION_TYPE_EDIT} from "./Degustation";
+import setDegustationMode from "./Degustations";
 
 //qeh7X9boOseEuegdzVbY1eP7
 const DegustationSelector = () => {
@@ -24,6 +26,7 @@ const DegustationSelector = () => {
         .then(result => {
            setDegustation({id: doc['id'], ...result.data});
            setMask(null);
+           setDegustationMode(DEGUSTATION_TYPE_EDIT);
           })
       ;
     }
