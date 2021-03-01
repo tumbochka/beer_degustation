@@ -27,11 +27,11 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
     sheet.getCell(i, 1).value = beer.brewery.brewery_name;
     sheet.getCell(i, 2).value = beer.beer.beer_name;
     sheet.getCell(i, 3).value = beer.beer.beer_style;
-    sheet.getCell(i, 4).value = beer.beer.rating_score;
-    sheet.getCell(i, 5).value = beer.beer.beer_abv;
-    sheet.getCell(i, 6).value = beer.beer.plato;
+    sheet.getCell(i, 4).value = beer.beer.rating_score.toString().replace('.', ',');;
+    sheet.getCell(i, 5).value = beer.beer.beer_abv.toString().replace('.', ',');
+    sheet.getCell(i, 6).value = beer.beer.plato.toString().replace('.', ',');
     sheet.getCell(i,7).value = beer.beer.beer_ibu;
-    sheet.getCell(i,8).value = beer.volume;
+    sheet.getCell(i,8).value = beer.volume.toString().replace('.', ',');;
     sheet.getCell(i, 32).value = beer.beer.bid;
   });
 

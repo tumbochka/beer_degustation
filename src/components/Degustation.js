@@ -5,6 +5,7 @@ import {updateBeer, searchBeerOnUntappd, removeBeerFromDegustation} from "../ser
 import {exportDegustationToGoogleSheet} from "../services/Degustation";
 import AskBeerRate from "./AskBeerRate";
 import AddBeer from "./AddBeer";
+import Popup from "reactjs-popup";
 
 export const DEGUSTATION_TYPE_EDIT = 'edit';
 export const DEGUSTATION_TYPE_TAKE_PART = 'take_part';
@@ -65,10 +66,11 @@ const Degustation = ({
     console.log('beers', beers.length);
     console.log('found beers', foundBeers.length);
     if (false === fetchingBeerDetails && beers.length === foundBeers.length) {
-
       setFetchingBeerDetails(true);
       setMask('Fetching beer details...');
-      Promise.all(foundBeers.filter(beer => beer.beer.bid).map(beer => updateBeer(degustation, beer)))
+      Promise.all(
+        foundBeers.filter(beer => beer.beer.bid)
+          .map(beer => updateBeer(degustation, beer).then(degustation => setBeers(degustation.beers))))
         .then(() => {
           setFoundBeers([]);
           setMask(null);
@@ -164,7 +166,15 @@ const Degustation = ({
         </div>
         :
         <div>
-          { beerToRate ? <AskBeerRate degustation={degustation} beer={beerToRate} user={user} />: ''}
+          {
+            beerToRate ?
+            <Popup position="center center" defaultOpen={true} open={!!beerToRate} closeOnDocumentClick={false}>
+              <AskBeerRate degustation={degustation} beer={beerToRate} user={user} onClose={ () => {
+                setBeerToRate(null)
+              }} />
+            </Popup>
+              : ''
+          }
           <div className="caption">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
             { DEGUSTATION_TYPE_EDIT === mode ? <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button> :''}
@@ -197,6 +207,6 @@ const Degustation = ({
       }
     </div>
   );
-}
+};
 
 export default Degustation;

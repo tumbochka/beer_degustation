@@ -1,33 +1,35 @@
 import firebase from "firebase";
 import {updateDegustation} from "../persistence/Persistence";
 
-export const updateBeer = (degustation, beer) => {
+export const updateBeer = async (degustation, beer) => {
   const getBeerDetailsFromUntappd = firebase.functions().httpsCallable('getBeerDetailsFromUntappd');
-  getBeerDetailsFromUntappd({
+  const result = await getBeerDetailsFromUntappd({
     bid: beer.beer.bid
-  })
-    .then(result => {
-      const beerFromUntappd = result.data;
-      console.log('beer from untappd', beerFromUntappd);
-      if(beerFromUntappd) {
-        degustation.beers = degustation.beers.map(beerItem => {
-          if(beerItem.id === beer.id) {
-            beerItem.brewery = beerFromUntappd.brewery;
-            beerItem.beer = {...beerItem.beer,
-              bid: beerFromUntappd.bid,
-              beer_abv: beerFromUntappd.beer_abv,
-              beer_name: beerFromUntappd.beer_name,
-              beer_label: beerFromUntappd.beer_label,
-              beer_ibu: beerFromUntappd.beer_ibu,
-              beer_description: beerFromUntappd.beer_description,
-              beer_style: beerFromUntappd.beer_style,
-              rating_score: beerFromUntappd.rating_score
-            }
-          }
-          return beerItem;
-        });
-        updateDegustation(degustation);
-    }})
+  });
+
+  const beerFromUntappd = result.data;
+
+  if(beerFromUntappd) {
+    degustation.beers = degustation.beers.map(beerItem => {
+      if(beerItem.id === beer.id) {
+        beerItem.brewery = beerFromUntappd.brewery;
+        beerItem.beer = {...beerItem.beer,
+          bid: beerFromUntappd.bid,
+          beer_abv: beerFromUntappd.beer_abv,
+          beer_name: beerFromUntappd.beer_name,
+          beer_label: beerFromUntappd.beer_label,
+          beer_ibu: beerFromUntappd.beer_ibu,
+          beer_description: beerFromUntappd.beer_description,
+          beer_style: beerFromUntappd.beer_style,
+          rating_score: beerFromUntappd.rating_score
+        }
+      }
+      return beerItem;
+    });
+    await updateDegustation(degustation);
+  }
+
+  return degustation;
 }
 
 export const fetchBeerDetails = async (bid) => {
