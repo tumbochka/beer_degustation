@@ -1,14 +1,14 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Form, Button, Col, Row} from "react-bootstrap";
 import Beer from "./Beer";
-import {fetchBeerDetails, searchBeerOnUntappd} from "../services/Beer";
+import {fetchBeerDetails, searchBeerOnUntappd, updateBeer} from "../services/Beer";
 import {searchOnUntappd} from "../services/Beer";
-import {updateDegustation} from "../persistence/Persistence";
 
 const AddBeer = ({degustation, refreshBeers}) => {
     const [beer, setBeer] = useState(null);
     const [foundBeers, setFoundBeers] = useState([]);
     const [isSearching, setSearching] = useState(false);
+    const [formDisabled, setFormDisabled] = useState(false);
     const [values, setValues] = useState({
         beerName: '',
         breweryName: '',
@@ -19,6 +19,11 @@ const AddBeer = ({degustation, refreshBeers}) => {
         beerVolume: 0,
         search: '',
     });
+
+    useEffect(() => {
+        const timeOutId = setTimeout(() => search(), 500);
+        return () => clearTimeout(timeOutId);
+    }, [values.search]);
 
     const valuesToBeer = (newValues) => {
         beer.beer.beer_name = newValues.beerName;
@@ -171,24 +176,17 @@ const AddBeer = ({degustation, refreshBeers}) => {
                         <Form.Label column sm="1">
                             Search
                         </Form.Label>
-                        <Col sm="shrink">
+                        <Col >
                             <Form.Control
                                 type="text"
                                 name="search"
+                                disabled={formDisabled}
                                 value={values.search}
-                                onChange={e => {
-                                    handleInputChange(e);
-                                    //const value = e.target.value;
-                                    search();
-                                    // setTimeout(() => {
-                                    //     if(values.search === value) {
-                                    //         search();
-                                    //     }
-                                    // }, 500);
-
-                                }}
+                                onChange={e=>handleInputChange(e)}
                             />
                         </Col>
+                    </Form.Group>
+                    <Form.Group as={Row}>
                     <Form.Label column sm="1">
                         Brewery Name
                     </Form.Label>
@@ -196,6 +194,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="text"
                         name="breweryName"
+                        disabled={formDisabled}
                         value={values.breweryName}
                         onChange={e => {
                             handleInputChange(e);
@@ -216,12 +215,13 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="text"
                         name="beerName"
+                        disabled={formDisabled}
                         value={values.beerName}
                         onChange={e => {
                             handleInputChange(e);
                             const value = e.target.value;
                             setTimeout(() => {
-                                if(beer.beer.beer_name == value) {
+                                if(beer.beer.beer_name === value) {
                                     searchBeer();
                                 }
                             }, 500);
@@ -238,6 +238,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="number"
                         name="beerAbv"
+                        disabled={formDisabled}
                         value={values.beerAbv}
                         onChange={handleInputChange}
                     />
@@ -249,6 +250,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="number"
                         name="beerIbu"
+                        disabled={formDisabled}
                         value={values.beerIbu}
                         onChange={handleInputChange}
                     />
@@ -260,6 +262,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="number"
                         name="beerVolume"
+                        disabled={formDisabled}
                         value={values.beerVolume}
                         onChange={handleInputChange}
                     />
@@ -271,6 +274,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="number"
                         name="beerPlato"
+                        disabled={formDisabled}
                         value={values.beerPlato}
                         onChange={handleInputChange}
                     />
@@ -286,6 +290,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     <Form.Control
                         type="text"
                         name="beerStyle"
+                        disabled={formDisabled}
                         value={values.beerStyle}
                         onChange={handleInputChange}
                     />
@@ -293,11 +298,18 @@ const AddBeer = ({degustation, refreshBeers}) => {
                     </Form.Group>
                 </Form>
                 <Button onClick={() => {
+                    setFormDisabled(true);
                     degustation.beers.push(beer);
-                    refreshBeers(degustation.beers);
-                    newBeer();
-                    clearValues();
-                    updateDegustation(degustation);
+                    console.log('before update', degustation.beers);
+                    updateBeer(degustation, beer)
+                      .then(degustation => {
+                          refreshBeers(degustation.beers);
+                          console.log('after update', degustation.beers);
+                          newBeer();
+                          clearValues();
+                          setFormDisabled(false);
+                      });
+
                 }}>Add</Button>
                 <Button onClick={() => {
                     newBeer();
@@ -316,7 +328,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
         }
         </div>
     )
-}
+};
 
 
 export default AddBeer;

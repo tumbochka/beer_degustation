@@ -80,6 +80,7 @@ const Degustation = ({
   }
 
   const refreshBeers = (beers) => {
+    console.log('refresh', beers);
     setBeers([...beers]);
   }
 

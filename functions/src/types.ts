@@ -32,6 +32,7 @@ export interface BeerItem {
 }
 
 export interface Degustation {
+  id: string,
   title: string,
   date: Date,
   beers: Array<BeerItem>,

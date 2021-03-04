@@ -5,10 +5,10 @@ import {
   exportDegustationToGoogle,
   fetchDegustationDataFromGoogleSheet,
   getDegustation,
+  rateDegustationBeer,
   updateDegustation
 } from "./degustationService";
-import {checkInBeer, getBeerDetails, search, searchBeer} from "./untappdService";
-import {BeerItem, Rate} from "./types";
+import {getBeerDetails, search, searchBeer} from "./untappdService";
 import {getUser} from "./userService";
 import {upload} from "./upload";
 import {saveClientToken} from "./message";
@@ -118,43 +118,18 @@ export const rateBeer = functions.https.onRequest((request, response) => {
   corsHandler(request, response, () => {
     const {degustationId, beerId, userId, rate, shout} = request.body.data;
 
-    getDegustation(degustationId)
-      .then(degustation => {
-        if (!degustation) {
-          response.status(400).send("Degustation doesn't exist: " + degustationId);
+    try {
+      rateDegustationBeer(degustationId, beerId, userId, rate, shout)
+        .then(degustation => response.send({data: degustation}))
+        .catch(e => {
+          const code = e instanceof ValidationError ? 400 : 500;
+          response.status(code).send(e.message);
         }
-        getUser(userId).then(user => {
-          if(!user) {
-            response.status(400).send("User doesn't exist: " + userId);
-          }
-          const beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
-          if (!beer.rates) {
-            beer.rates = [];
-          }
-          const rateIndex = beer.rates.findIndex((rateItem: Rate) => rateItem.user === userId);
-          if (-1 === rateIndex) {
-            beer.rates.push({user: userId, rate: rate, shout: shout});
-            if (user.untappdAccessToken && beer.beer.bid) {
-              checkInBeer(user.untappdAccessToken, beer.beer.bid, rate/2, shout)
-            }
-          } else {
-            beer.rates[rateIndex] = {user: userId, rate: rate, shout: shout};
-          }
-          updateDegustation(degustationId, degustation)
-            .then(updatedDegustation => {
-              response.send({data: updatedDegustation});
-            })
-            .catch(e => {
-              response.status(500).send(e.message);
-            });
-        })
-      .catch(e => {
-        response.status(500).send(e.message);
-      });
-      })
-      .catch(e => {
-        response.status(500).send(e.message);
-      });
+        );
+    } catch (e) {
+      const code = e instanceof ValidationError ? 400 : 500;
+      response.status(code).send(e.message);
+    }
   });
 });
 

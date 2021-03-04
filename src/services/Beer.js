@@ -11,7 +11,7 @@ export const updateBeer = async (degustation, beer) => {
 
   if(beerFromUntappd) {
     degustation.beers = degustation.beers.map(beerItem => {
-      if(beerItem.id === beer.id) {
+      if(beerItem.beer.bid === beer.beer.bid) {
         beerItem.brewery = beerFromUntappd.brewery;
         beerItem.beer = {...beerItem.beer,
           bid: beerFromUntappd.bid,
@@ -105,7 +105,18 @@ export const searchBeerOnUntappd = beer => {
 }
 
 export const removeBeerFromDegustation = (degustation, beer) => {
-  degustation.beers = degustation.beers.filter(filterBeer => filterBeer.id !== beer.id);
+  degustation.beers = degustation.beers.filter(filterBeer => {
+    if(filterBeer.id && beer.id) {
+      return filterBeer.id !== beer.id;
+    }
+    if(filterBeer.beer && beer.beer) {
+      if(filterBeer.beer.bid && beer.beer.bid) {
+        return filterBeer.beer.bid !== beer.beer.bid;
+      }
+      return filterBeer.beer.name !== beer.beer.name;
+    }
+    return false;
+  });
   updateDegustation(degustation);
   return degustation;
 }
