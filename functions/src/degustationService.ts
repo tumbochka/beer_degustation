@@ -120,6 +120,13 @@ export const updateDegustation = async (degustationId: string, degustation: Degu
     });
   }
 
+  degustation.beers = degustation.beers.map(beer => {
+    if(!beer.id) {
+      beer.id = uuidv4();
+    }
+    return beer;
+  });
+
   const firestore = admin.firestore();
   const degustationRef = firestore.doc(`degustations/${degustationId}`);
   await degustationRef.update(degustation);
@@ -198,8 +205,8 @@ const setRateToGoogle = async (degustation: Degustation, beerId: number, userId:
     const index = degustation.users.findIndex(user => user === userId);
     if(index !== -1) {
       const x = 10 + index;
-      sheet.getCell(x, y).value = rate;
-      sheet.getCell(x, 0).value = userName;
+      sheet.getCell(y, x).value = rate.toString().replace('.',',');
+      sheet.getCell(0, x).value = userName;
       await sheet.saveUpdatedCells();
     }
   }

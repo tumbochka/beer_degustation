@@ -26,7 +26,8 @@ export const updateBeer = async (degustation, beer) => {
       }
       return beerItem;
     });
-    await updateDegustation(degustation);
+
+    return await updateDegustation(degustation);
   }
 
   return degustation;

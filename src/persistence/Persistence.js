@@ -74,7 +74,9 @@ export const updateDegustation = async (degustation) => {
   const updateClientDegustation = firebase.functions().httpsCallable('updateClientDegustation');
   console.log('updating', degustation);
   try {
-    await updateClientDegustation({degustation: degustation});
+    const updateDegustation = await updateClientDegustation({degustation: degustation});
+
+    return updateDegustation.data;
   } catch (err) {
     console.error("Error updating degustation", err);
   }

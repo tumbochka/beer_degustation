@@ -207,8 +207,8 @@ export const updateClientDegustation =  functions.https.onRequest((request, resp
     }
     const {degustation} = request.body.data;
     updateDegustation(degustation.id, degustation)
-      .then(() => {
-        response.send({data: true});
+      .then((updatedDegustation) => {
+        response.send({data: updatedDegustation});
       })
       .catch(e => {
         response.status(500).send(e.message);
