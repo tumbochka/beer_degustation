@@ -6,7 +6,7 @@ import {Container, Row, Col, Button} from "react-bootstrap";
 import {sortBeers} from "../services/Degustation";
 
 import firebase from "firebase";
-import {onMessageListener} from "../firebase";
+// import {onMessageListener} from "../firebase";
 
 
 
@@ -78,14 +78,14 @@ const Degustations = ({user}) => {
     }
 
 
-  onMessageListener()
-    .then((payload) => {
-      const {body, data} = payload.data;
-      if ('Degustation update' === body) {
-        setDegustation(data);
-      }
-    })
-    .catch((err) => {console.log('Message error', err)});
+  // onMessageListener()
+  //   .then((payload) => {
+  //     const {body, data} = payload.data;
+  //     if ('Degustation update' === body) {
+  //       setDegustation(data);
+  //     }
+  //   })
+  //   .catch((err) => {console.log('Message error', err)});
 
   return (
 

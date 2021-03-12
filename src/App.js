@@ -1,5 +1,5 @@
 import  React, { useEffect, useState } from "react";
-import {auth, requestFirebaseNotificationPermission} from "./firebase";
+import {auth} from "./firebase";
 import Application from "./components/Application";
 import {createUser} from "./persistence/Persistence";
 import firebase from "firebase";
