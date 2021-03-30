@@ -1,6 +1,7 @@
 import firebase from "firebase";
 import {updateDegustation} from "../persistence/Persistence";
 
+
 export const updateBeer = async (degustation, beer) => {
   const getBeerDetailsFromUntappd = firebase.functions().httpsCallable('getBeerDetailsFromUntappd');
   const result = await getBeerDetailsFromUntappd({
@@ -57,8 +58,6 @@ export const fetchBeerDetails = async (bid) => {
   }
 
   return null;
-
-
 
 }
 

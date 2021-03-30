@@ -15,7 +15,7 @@ const firebaseConfig = {
   databaseURL: "https://beer-degustation.firebaseio.com",
   projectId: "beer-degustation",
   storageBucket: "beer-degustation.appspot.com",
-  messagingSenderId: "1058720130453",
+//  messagingSenderId: "1058720130453",
   appId: "1:1058720130453:web:7dc1000cd81db0be68829c"
 };
 
@@ -23,7 +23,8 @@ firebase.initializeApp(firebaseConfig);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
-export const messaging = firebase.messaging();
+
+//export const messaging = firebase.messaging();
 
 firestore.enablePersistence().catch(err => {
   if (err.code === 'failed-precondition') {

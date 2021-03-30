@@ -102,6 +102,7 @@ const Degustation = ({
         <Beer
           key={beer.id}
           beer={beer}
+          user={user}
           buttons={ [{ onClick: onClick,
             onClickCaption: caption}] }
         />
@@ -120,6 +121,7 @@ const Degustation = ({
         <Beer
           key={beer.beer.uid}
           beer={beer}
+          user={user}
           buttons={ [{ onClick: onClick,
             onClickCaption: "Select"}] }
         />
@@ -160,6 +162,8 @@ const Degustation = ({
               <Col>ABV</Col>
               <Col>IBU</Col>
               <Col>Description</Col>
+              <Col>Rate</Col>
+              <Col>Avg</Col>
               <Col>Actions</Col>
             </Row>
             {renderBeerForSelection(beerToSelect)}
@@ -170,7 +174,7 @@ const Degustation = ({
           {
             beerToRate ?
             <Popup position="center center" defaultOpen={true} open={!!beerToRate} closeOnDocumentClick={false}>
-              <AskBeerRate degustation={degustation} beer={beerToRate} user={user} onClose={ () => {
+              <AskBeerRate degustation={degustation} beer={beerToRate} user={user} refreshBeers={refreshBeers} onClose={ () => {
                 setBeerToRate(null)
               }} />
             </Popup>
@@ -180,8 +184,8 @@ const Degustation = ({
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
             { DEGUSTATION_TYPE_EDIT === mode ? <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button> :''}
           </div>
-          {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} /> : '' }
-          <Container>
+          {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} user={user} /> : '' }
+          <Container fluid>
             <Row>
               <Col>Label</Col>
               <Col>Untappd ID</Col>
@@ -195,15 +199,18 @@ const Degustation = ({
               }}>Sort</Button></div></Col>
               <Col>IBU</Col>
               <Col>Description</Col>
+              <Col>Rate</Col>
+              <Col>Avg</Col>
               <Col>Actions</Col>
             </Row>
             {renderBeers()}
           </Container>
-          <Button onClick={() => {
+
+          {DEGUSTATION_TYPE_EDIT === mode ? <Button onClick={() => {
             setMask('Exporting degustation data to google sheet');
             exportDegustationToGoogleSheet(degustation)
               .then(() => setMask(null));
-          }}>Export to Google</Button>
+          }}>Export to Google</Button> : ''}
         </div>
       }
     </div>

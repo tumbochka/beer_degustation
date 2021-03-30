@@ -3,6 +3,7 @@ import {Row, Col, Button, OverlayTrigger, Tooltip} from "react-bootstrap";
 
 const Beer = ({
     beer,
+    user,
     // onClick,
     // onClickCaption
     buttons,
@@ -16,6 +17,14 @@ const Beer = ({
             }
        )
     }
+    let currentRate = null, avg = 0;
+    if(beer.rates && beer.rates.length) {
+        const rate = beer.rates.find(rateItem => rateItem.user === user.uid);
+        if(rate) {
+            currentRate = rate;
+        }
+        avg = (beer.rates.map(rate=>rate.rate).reduce(((a, b) => a+Number(b)), 0)) / beer.rates.length;
+    }
   const renderTooltip = (props) => {
     return (
       <Tooltip id={"tooltip" + beer.id} {...props}>
@@ -23,8 +32,16 @@ const Beer = ({
       </Tooltip>
     );
   }
+
+    const renderShout = (props) => {
+        return(
+        <Tooltip id={"shout" + beer.id} {...props}>
+            { currentRate && currentRate.shout ? currentRate.shout : '--'}
+        </Tooltip>
+        )
+    }
   return (
-    <Row key={beer.id} >
+    <Row key={beer.id}  xs={11} sm={11} md={11} lg={11} xl={11} >
       <Col>
         {beer.beer.beer_label ?
           <img src={beer.beer.beer_label} alt='Beer label'/> :
@@ -42,7 +59,7 @@ const Beer = ({
         {beer.beer.beer_abv}
       </Col><Col>
         {beer.beer.beer_ibu}
-      </Col><Col xs={2}>
+      </Col><Col>
       <OverlayTrigger
         key={"overlay" + beer.id}
         placement="left"
@@ -54,6 +71,21 @@ const Beer = ({
         </div>
       </OverlayTrigger>
       </Col>
+        <Col>
+            <OverlayTrigger
+                key={"shout" + beer.id}
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={renderShout}
+            >
+                <div>
+                    {currentRate ? currentRate.rate : '--'}
+                </div>
+            </OverlayTrigger>
+        </Col>
+        <Col>
+            {currentRate ? avg : '--'}
+        </Col>
       {renderButtons() }
     </Row>
   );

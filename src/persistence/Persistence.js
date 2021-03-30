@@ -86,7 +86,7 @@ export const getDegustation = async (degustationId) => {
   const doc = firestore.doc(`degustations/${degustationId}`);
   try {
     const degustation = await doc.get();
-    return degustation;
+    return degustation.data();
   } catch (error) {
     console.error("Error updating degustation", error);
   }

@@ -1,8 +1,10 @@
 import React, {useState} from "react";
 import {Form, Button, Col, Row} from "react-bootstrap";
 import {rateBeer} from "../services/Degustation";
+import {updateBeer} from "../services/Beer";
+import {getDegustation} from "../persistence/Persistence";
 
-const AskBeerRate = ({degustation, user, beer, onClose}) => {
+const AskBeerRate = ({degustation, user, beer, refreshBeers, onClose}) => {
   const [mask, setMask] = useState(null);
   const [rate, setRate] = useState(0);
   const [shout, setShout] = useState('');
@@ -50,8 +52,12 @@ const AskBeerRate = ({degustation, user, beer, onClose}) => {
             setMask('In progress...')
             rateBeer(degustation, beer, user, rate, shout)
               .then(() => {
-                setMask(null);
-                onClose();
+                getDegustation(degustation.id)
+                    .then((freshDegustation) => {
+                      refreshBeers(freshDegustation.beers);
+                      setMask(null);
+                      onClose();
+                    });
               })
               .catch(e => setMask('Error: ' + e.message))
             ;

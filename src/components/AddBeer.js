@@ -4,7 +4,7 @@ import Beer from "./Beer";
 import {fetchBeerDetails, searchBeerOnUntappd, updateBeer} from "../services/Beer";
 import {searchOnUntappd} from "../services/Beer";
 
-const AddBeer = ({degustation, refreshBeers}) => {
+const AddBeer = ({degustation, refreshBeers, user}) => {
     const [beer, setBeer] = useState(null);
     const [foundBeers, setFoundBeers] = useState([]);
     const [isSearching, setSearching] = useState(false);
@@ -160,6 +160,7 @@ const AddBeer = ({degustation, refreshBeers}) => {
                 <Beer
                     key={foundBeer.beer.uid}
                     beer={foundBeer}
+                    user={user}
                     buttons={ [{ onClick: onClick, onClickCaption: "Select"}] }
                 />
             );
