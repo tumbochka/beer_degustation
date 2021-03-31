@@ -1,5 +1,6 @@
 import React from "react";
 import {Row, Col, Button, OverlayTrigger, Tooltip} from "react-bootstrap";
+import {DEGUSTATION_TYPE_EDIT} from "./Degustation";
 
 const Beer = ({
     beer,
@@ -7,6 +8,7 @@ const Beer = ({
     // onClick,
     // onClickCaption
     buttons,
+  mode
   }) => {
     const renderButtons = () => {
         return buttons.map(
@@ -17,6 +19,7 @@ const Beer = ({
             }
        )
     }
+
     let currentRate = null, avg = 0;
     if(beer.rates && beer.rates.length) {
         const rate = beer.rates.find(rateItem => rateItem.user === user.uid);
@@ -41,25 +44,27 @@ const Beer = ({
         )
     }
   return (
-    <Row key={beer.id}  xs={11} sm={11} md={11} lg={11} xl={11} >
-      <Col>
-        {beer.beer.beer_label ?
-          <img src={beer.beer.beer_label} alt='Beer label'/> :
-          ''
-        }
-      </Col><Col>
+    <Row key={beer.id}  className='row-cols-10'>
+      <Col className="colLabel">
+          <img
+            className="beerLabel"
+            src={beer.beer.beer_label ? beer.beer.beer_label : 'https://untappd.akamaized.net/site/assets/images/temp/badge-beer-default.png'}
+            alt='Beer label'
+          />
+      </Col>
+      {DEGUSTATION_TYPE_EDIT === mode ? <Col>
         {beer.beer.bid}
-      </Col><Col>
-        {beer.brewery.brewery_name}
-      </Col><Col>
-        {beer.beer.beer_name}
-      </Col><Col>
+      </Col> : ''}
+
+        <Col className="colWrap">
+        {beer.brewery.brewery_name}: {beer.beer.beer_name}
+      </Col><Col className="colWrap">
         {beer.beer.beer_style}
       </Col><Col>
         {beer.beer.beer_abv}
       </Col><Col>
         {beer.beer.beer_ibu}
-      </Col><Col>
+      </Col><Col className="colWrap">
       <OverlayTrigger
         key={"overlay" + beer.id}
         placement="left"
@@ -67,7 +72,7 @@ const Beer = ({
         overlay={renderTooltip}
       >
         <div>
-        {beer.beer.beer_description ? beer.beer.beer_description.substring(0, 50) + '...' : ''}
+        {beer.beer.beer_description ? beer.beer.beer_description.substring(0, 40) + ' ...' : ''}
         </div>
       </OverlayTrigger>
       </Col>
@@ -84,7 +89,7 @@ const Beer = ({
             </OverlayTrigger>
         </Col>
         <Col>
-            {currentRate ? avg : '--'}
+            {currentRate ? Math.round(avg * 100)/100 : '--'}
         </Col>
       {renderButtons() }
     </Row>

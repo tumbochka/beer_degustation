@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {Form, Button, Col, Row} from "react-bootstrap";
 import {rateBeer} from "../services/Degustation";
-import {updateBeer} from "../services/Beer";
 import {getDegustation} from "../persistence/Persistence";
 
 const AskBeerRate = ({degustation, user, beer, refreshBeers, onClose}) => {

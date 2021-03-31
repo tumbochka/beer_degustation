@@ -3,6 +3,7 @@ import {Form, Button, Col, Row} from "react-bootstrap";
 import Beer from "./Beer";
 import {fetchBeerDetails, searchBeerOnUntappd, updateBeer} from "../services/Beer";
 import {searchOnUntappd} from "../services/Beer";
+import {DEGUSTATION_TYPE_EDIT} from "./Degustation";
 
 const AddBeer = ({degustation, refreshBeers, user}) => {
     const [beer, setBeer] = useState(null);
@@ -162,6 +163,7 @@ const AddBeer = ({degustation, refreshBeers, user}) => {
                     beer={foundBeer}
                     user={user}
                     buttons={ [{ onClick: onClick, onClickCaption: "Select"}] }
+                    mode={DEGUSTATION_TYPE_EDIT}
                 />
             );
         });

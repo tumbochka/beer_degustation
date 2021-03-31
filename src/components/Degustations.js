@@ -1,5 +1,5 @@
 import React, {useState}  from "react";
-import {getDegustation, getDegustations} from "../persistence/Persistence";
+import {getDegustation, getDegustations, updateDegustation} from "../persistence/Persistence";
 import Degustation, {DEGUSTATION_TYPE_EDIT, DEGUSTATION_TYPE_TAKE_PART} from "./Degustation";
 import {navigate} from "@reach/router";
 import {Container, Row, Col, Button} from "react-bootstrap";
@@ -58,9 +58,12 @@ const Degustations = ({user}) => {
 
 
   const sortCurrentDegustationBeers = (fieldName, direction) => {
-
       if(degustation) {
-          setDegustation({...degustation, beers: sortBeers(degustation.beers, fieldName, direction)});
+        const sortedDegustation = {...degustation, beers: sortBeers(degustation.beers, fieldName, direction)};
+        setDegustation(sortedDegustation);
+        if(DEGUSTATION_TYPE_EDIT === degustationMode) {
+          updateDegustation(sortedDegustation);
+        }
       }
     }
 

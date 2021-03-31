@@ -105,6 +105,7 @@ const Degustation = ({
           user={user}
           buttons={ [{ onClick: onClick,
             onClickCaption: caption}] }
+          mode={mode}
         />
       );
     });
@@ -124,6 +125,7 @@ const Degustation = ({
           user={user}
           buttons={ [{ onClick: onClick,
             onClickCaption: "Select"}] }
+          mode={mode}
         />
       );
     });
@@ -152,16 +154,15 @@ const Degustation = ({
               {beerToSelect[0].originalBeer.brewery.brewery_name + ' ' + beerToSelect[0].originalBeer.beer.beer_name}
             </Col>
           </div>
-          <Container>
+          <Container fluid>
             <Row>
-              <Col>Label</Col>
+              <Col className="colLabel">Label</Col>
               <Col>Untappd ID</Col>
-              <Col>Brewery</Col>
-              <Col>Beer Name</Col>
-              <Col>Style</Col>
+              <Col className="colWrap">Brewery, Beer Name</Col>
+              <Col className="colWrap">Style</Col>
               <Col>ABV</Col>
               <Col>IBU</Col>
-              <Col>Description</Col>
+              <Col className="colWrap">Description</Col>
               <Col>Rate</Col>
               <Col>Avg</Col>
               <Col>Actions</Col>
@@ -186,19 +187,18 @@ const Degustation = ({
           </div>
           {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} user={user} /> : '' }
           <Container fluid>
-            <Row>
-              <Col>Label</Col>
-              <Col>Untappd ID</Col>
-              <Col>Brewery</Col>
-              <Col>Beer Name <div center="true"><Button onClick={()=>{
+            <Row  className='row-cols-10'>
+              <Col className="colLabel">Label</Col>
+              { DEGUSTATION_TYPE_EDIT === mode ? <Col>Untappd ID</Col> : '' }
+              <Col className="colWrap">Brewery, Beer Name <div center="true"><Button onClick={()=>{
                 sortCurrentDegustationBeers("beer.beer_name", "asc");
               }}>Sort</Button></div></Col>
-              <Col>Style</Col>
+              <Col className="colWrap">Style</Col>
               <Col>ABV <div center="true"><Button onClick={()=>{
                 sortCurrentDegustationBeers("beer.beer_abv", "asc");
               }}>Sort</Button></div></Col>
               <Col>IBU</Col>
-              <Col>Description</Col>
+              <Col className="colWrap">Description</Col>
               <Col>Rate</Col>
               <Col>Avg</Col>
               <Col>Actions</Col>
