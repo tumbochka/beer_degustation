@@ -61,9 +61,14 @@ body {
   height: 70px;
 }
 
+.col {
+  text-align: center;
+}
+
 .colWrap {
   word-wrap: break-word;
   width: 200px;
+  text-align: left;
 }
 
 .colLabel {

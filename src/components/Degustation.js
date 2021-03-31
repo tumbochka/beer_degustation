@@ -158,10 +158,10 @@ const Degustation = ({
             <Row>
               <Col className="colLabel">Label</Col>
               <Col>Untappd ID</Col>
-              <Col className="colWrap">Brewery, Beer Name</Col>
+              <Col className="colWrap">Brewery</Col>
+              <Col className="colWrap">Beer Name</Col>
               <Col className="colWrap">Style</Col>
-              <Col>ABV</Col>
-              <Col>IBU</Col>
+              <Col>ABV <br /> IBU</Col>
               <Col className="colWrap">Description</Col>
               <Col>Rate</Col>
               <Col>Avg</Col>
@@ -190,17 +190,16 @@ const Degustation = ({
             <Row  className='row-cols-10'>
               <Col className="colLabel">Label</Col>
               { DEGUSTATION_TYPE_EDIT === mode ? <Col>Untappd ID</Col> : '' }
-              <Col className="colWrap">Brewery, Beer Name <div center="true"><Button onClick={()=>{
+              <Col className="colWrap">Brewery</Col>
+              <Col className="colWrap">Beer Name <div center="true"><Button onClick={()=>{
                 sortCurrentDegustationBeers("beer.beer_name", "asc");
               }}>Sort</Button></div></Col>
               <Col className="colWrap">Style</Col>
-              <Col>ABV <div center="true"><Button onClick={()=>{
+              <Col>ABV <br /> IBU <div center="true"><Button onClick={()=>{
                 sortCurrentDegustationBeers("beer.beer_abv", "asc");
               }}>Sort</Button></div></Col>
-              <Col>IBU</Col>
               <Col className="colWrap">Description</Col>
-              <Col>Rate</Col>
-              <Col>Avg</Col>
+              <Col>Rate Your/Avg</Col>
               <Col>Actions</Col>
             </Row>
             {renderBeers()}

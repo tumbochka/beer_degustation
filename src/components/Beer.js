@@ -56,14 +56,15 @@ const Beer = ({
         {beer.beer.bid}
       </Col> : ''}
 
+      <Col className="colWrap">
+        {beer.brewery.brewery_name}
+      </Col>
         <Col className="colWrap">
-        {beer.brewery.brewery_name}: {beer.beer.beer_name}
+        {beer.beer.beer_name}
       </Col><Col className="colWrap">
         {beer.beer.beer_style}
       </Col><Col>
-        {beer.beer.beer_abv}
-      </Col><Col>
-        {beer.beer.beer_ibu}
+        {beer.beer.beer_abv} <br/> {beer.beer.beer_ibu}
       </Col><Col className="colWrap">
       <OverlayTrigger
         key={"overlay" + beer.id}
@@ -85,11 +86,10 @@ const Beer = ({
             >
                 <div>
                     {currentRate ? currentRate.rate : '--'}
+                    /
+                    {currentRate ? Math.round(avg * 100)/100 : '--'}
                 </div>
             </OverlayTrigger>
-        </Col>
-        <Col>
-            {currentRate ? Math.round(avg * 100)/100 : '--'}
         </Col>
       {renderButtons() }
     </Row>
