@@ -44,7 +44,7 @@ const Degustation = ({
     setMask('Searching beers on Untappd');
     beers.forEach(async beer => {
       try {
-        const searchBeers = await searchBeerOnUntappd(beer);
+        const searchBeers = await searchBeerOnUntappd(beer, user);
         if (!searchBeers || 0 === searchBeers.length) { // has'n found a beer
           pushToFoundBeers(beer);
         } else if (1 === searchBeers.length) { //found exactly one beer
@@ -70,7 +70,11 @@ const Degustation = ({
       setMask('Fetching beer details...');
       Promise.all(
         foundBeers.filter(beer => beer.beer.bid)
-          .map(beer => updateBeer(degustation, beer).then(degustation => setBeers(degustation.beers))))
+          .map(
+            beer => updateBeer(degustation, beer)
+                    .then(degustation => {
+                      setBeers(degustation.beers);
+                    })))
         .then(() => {
           setFoundBeers([]);
           setMask(null);

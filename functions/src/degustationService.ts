@@ -196,7 +196,7 @@ const setRateToGoogle = async (degustation: Degustation, beerId: number, userId:
 
   let y = null;
   for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=(sheet.getCell(i, 2).value || sheet.getCell(i, 32).value)) {
-    if(sheet.getCell(i, 32).value == beerId) {
+    if(sheet.getCell(i, 32).value === beerId) {
       y = i;
       break;
     }

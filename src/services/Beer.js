@@ -12,7 +12,7 @@ export const updateBeer = async (degustation, beer) => {
 
   if(beerFromUntappd) {
     degustation.beers = degustation.beers.map(beerItem => {
-      if(beerItem.beer.bid === beer.beer.bid) {
+      if(beerItem.id === beer.id) {
         beerItem.brewery = beerFromUntappd.brewery;
         beerItem.beer = {...beerItem.beer,
           bid: beerFromUntappd.bid,
@@ -79,7 +79,7 @@ export const searchOnUntappd = search => {
   })
 }
 
-export const searchBeerOnUntappd = beer => {
+export const searchBeerOnUntappd = (beer, user) => {
   return new Promise((resolve, reject) => {
     if(beer.beer.bid) {
       resolve([beer]);
@@ -90,7 +90,8 @@ export const searchBeerOnUntappd = beer => {
       const searchBeerOnUntappd = firebase.functions().httpsCallable('searchBeerOnUntappd');
       searchBeerOnUntappd({
         beer_name: beer.beer.beer_name,
-        brewery_name: beer.brewery.brewery_name
+        brewery_name: beer.brewery.brewery_name,
+        userId: user.uid,
       })
         .then(result => {
           const beers = result.data;

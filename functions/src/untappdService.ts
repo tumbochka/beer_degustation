@@ -1,5 +1,6 @@
 import * as rq from 'request';
 import {BeerItem} from "./types";
+import {getUser} from "./userService";
 
 const functions = require('firebase-functions');
 
@@ -22,16 +23,28 @@ export const search = (searchStr: string, callback: (beers: Array<BeerItem>) => 
     callback([]);
   });
 }
-export const searchBeer = (breweryName: string, beerName: string, callback: (beers: Array<BeerItem>) => void) => {
+export const searchBeer = async (breweryName: string, beerName: string, userId: string|null, callback: (beers: Array<BeerItem>) => void) => {
   const untappdConfig = functions.config().untappd;
-  const requestOptions = {
-    url: untappdConfig.api_url + 'search/beer',
-    qs: {
-      client_id: untappdConfig.client_id,
-      client_secret: untappdConfig.client_secret,
-      q: breweryName + ' ' + beerName
-    }
-  };
+  const user = userId ? await getUser(userId) : null;
+  let requestOptions;
+  if(user && user.untappdAccessToken) {
+    requestOptions = {
+      url: untappdConfig.api_url + 'search/beer',
+      qs: {
+        access_token: user.untappdAccessToken,
+        q: breweryName + ' ' + beerName
+      }
+    };
+  } else {
+    requestOptions = {
+      url: untappdConfig.api_url + 'search/beer',
+      qs: {
+        client_id: untappdConfig.client_id,
+        client_secret: untappdConfig.client_secret,
+        q: breweryName + ' ' + beerName
+      }
+    };
+  }
 
   rq(requestOptions, (err, resp, body) => {
     if (!err){

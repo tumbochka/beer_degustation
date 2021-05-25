@@ -88,10 +88,17 @@ export const searchOnUntappd = functions.https.onRequest((request, response) => 
 
 export const searchBeerOnUntappd = functions.https.onRequest((request, response) => {
   corsHandler(request, response, () => {
-    const {beer_name, brewery_name} = request.body.data;
-    searchBeer(brewery_name, beer_name, (resp) => {
+    const {beer_name, brewery_name, userId} = request.body.data;
+    searchBeer(brewery_name, beer_name, userId,(resp) => {
       response.send({data: resp});
-    });
+    })
+      .then(()=> {
+        console.log('search done');
+      })
+      .catch(e => {
+        response.status(500).send(e.message);
+      })
+    ;
   });
 });
 
