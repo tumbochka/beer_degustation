@@ -1,7 +1,7 @@
 import React, {useState}  from "react";
 import {getDegustation, getDegustations, updateDegustation} from "../persistence/Persistence";
 import Degustation, {DEGUSTATION_TYPE_EDIT, DEGUSTATION_TYPE_TAKE_PART} from "./Degustation";
-import {navigate} from "@reach/router";
+import {navigate, useMatch} from "@reach/router";
 import {Container, Row, Col, Button} from "react-bootstrap";
 import {sortBeers} from "../services/Degustation";
 
@@ -14,6 +14,17 @@ const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
   const [degustation, setDegustation] = useState(null);
   const [degustationMode, setDegustationMode] = useState(null);
+  const [closing, setClosing] = useState(false);
+
+      const match = useMatch('/Degustations/:degustationId/:mode');
+      if (degustations && match && !degustation) {
+          setDegustation(degustations.find(degustation => degustation.id === match.degustationId));
+          setDegustationMode(match.mode);
+      }
+
+  if(degustation){
+      window.history.replaceState(null, `Degustation ${degustationMode}`, `/Degustations/${degustation.id}/${degustationMode}`);
+  }
   const refreshDegustation = async () => {
       if (degustation) {
           const newDegustation = await getDegustation(degustation.id);
@@ -97,7 +108,10 @@ const Degustations = ({user}) => {
         degustation ?
         <div>
           <Degustation degustation={degustation} user={user} mode={degustationMode} sortCurrentDegustationBeers={sortCurrentDegustationBeers}/>
-          <Button onClick={() => {setDegustation(null)}}>Close</Button>
+          <Button onClick={() => {
+              setDegustation(null);
+              navigate('/Degustations');
+          }}>Close</Button>
         </div> : (
             degustations ?
               <div>

@@ -186,7 +186,9 @@ const Degustation = ({
               : ''
           }
           <div className="caption">
+            <a href={`https://docs.google.com/spreadsheets/d/${degustation.id}/edit`} target="_blank">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
+            </a>
             { DEGUSTATION_TYPE_EDIT === mode ? <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button> :''}
           </div>
           {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} user={user} /> : '' }

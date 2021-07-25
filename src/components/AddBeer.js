@@ -301,6 +301,9 @@ const AddBeer = ({degustation, refreshBeers, user}) => {
                     </Form.Group>
                 </Form>
                 <Button onClick={() => {
+                    if(!beer.beer.beer_name || !beer.brewery.brewery_name) {
+                        return;
+                    }
                     setFormDisabled(true);
                     degustation.beers.push(beer);
                     console.log('before update', degustation.beers);
