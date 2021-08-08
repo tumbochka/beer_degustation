@@ -12,7 +12,10 @@ export const updateBeer = async (degustation, beer) => {
 
   if(beerFromUntappd) {
     degustation.beers = degustation.beers.map(beerItem => {
-      if(beerItem.id === beer.id) {
+      if(
+          (beerItem.id && beer.id && beerItem.id === beer.id) ||
+          (beerItem.beer.bid && beer.beer.bid && beerItem.beer.bid === beer.beer.bid)
+      ) {
         beerItem.brewery = beerFromUntappd.brewery;
         beerItem.beer = {...beerItem.beer,
           bid: beerFromUntappd.bid,

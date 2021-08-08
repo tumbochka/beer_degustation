@@ -5,7 +5,7 @@ import {
   exportDegustationToGoogle,
   fetchDegustationDataFromGoogleSheet,
   getDegustation,
-  rateDegustationBeer,
+  rateDegustationBeer, setAllRatesToGoogle,
   updateDegustation
 } from "./degustationService";
 import {getBeerDetails, search, searchBeer} from "./untappdService";
@@ -247,5 +247,19 @@ export const addMessageToken = functions.https.onRequest((request, response) => 
         response.status(500).send(e.message);
       })
      ;
+  });
+});
+
+export const exportAllRates = functions
+    .runWith({timeoutSeconds: 450})
+    .https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    const {degustationId} = request.body.data;
+    getDegustation(degustationId)
+        .then(degustation => setAllRatesToGoogle(degustation))
+        .catch(e => {
+          functions.logger.error(e);
+          response.status(500).send(e.message);
+        });
   });
 });

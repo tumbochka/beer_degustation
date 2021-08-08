@@ -44,6 +44,13 @@ export const rateBeer = (degustation, beer, user, rate, shout) => {
 
 
 }
+
+export const exportAllRates = (degustation) => {
+  const exportAllRates = firebase.functions().httpsCallable('exportAllRates');
+  return exportAllRates({degustationId: degustation.id});
+};
+
+
 const resolvePath = (object, path, defaultValue) => path
     .split(/[\.\[\]\'\"]/)
     .filter(p => p)

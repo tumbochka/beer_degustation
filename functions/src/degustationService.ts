@@ -181,6 +181,56 @@ export const rateDegustationBeer = async (
   return await updateDegustation(degustationId, degustation);
 }
 
+export const setAllRatesToGoogle = async (degustation: Degustation) => {
+  const doc = new GoogleSpreadsheet(degustation.id);
+  await doc.useServiceAccountAuth({
+    client_email: functions.config().google_service_account.email,
+    private_key:  functions.config().google_service_account.key.replace(/\\n/g, '\n')
+  });
+
+  await doc.loadInfo();
+
+  const sheet = doc.sheetsByIndex[0]
+
+  await sheet.loadCells('A1:AG50');
+  const beerMap = new Map<number, number>();
+  for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=(sheet.getCell(i, 2).value || sheet.getCell(i, 32).value)) {
+    beerMap.set(Number(sheet.getCell(i, 32).value), i);
+  }
+
+  const userMap = new Map<string, any>();
+  const exportRate = async (beer: BeerItem, rate: Rate) => {
+    let user: any;
+    user = userMap.get(rate.user);
+    if(!user) {
+      user = await getUser(rate.user);
+      userMap.set(rate.user, user);
+    }
+    if(!degustation.users.includes(rate.user)) {
+      degustation.users.push(rate.user);
+      await updateDegustation(degustation.id, degustation);
+    }
+    const y = beerMap.get(beer.beer.bid);
+
+    if(y) {
+      const index = degustation.users.findIndex(cuser => cuser === rate.user);
+      if(index !== -1) {
+        const x = 10 + index;
+        functions.logger.log(x, y, Number(rate.rate));
+        sheet.getCell(y, x).value = Number(rate.rate);
+        sheet.getCell(0, x).value = user.untappdName ? user.untappdName : user.firstName;
+      }
+    }
+  }
+  const exportBeerRates = async (beer: BeerItem) => {
+    await Promise.all(beer.rates.map((rate) => exportRate(beer, rate)));
+  }
+
+  await Promise.all(degustation.beers.map(degustationBeer => exportBeerRates(degustationBeer)));
+  functions.logger.log('Saving');
+  await sheet.saveUpdatedCells();
+}
+
 const setRateToGoogle = async (degustation: Degustation, beerId: number, userId: string, userName: string, rate: number) => {
   const doc = new GoogleSpreadsheet(degustation.id);
   await doc.useServiceAccountAuth({
@@ -202,10 +252,14 @@ const setRateToGoogle = async (degustation: Degustation, beerId: number, userId:
     }
   }
   if(y) {
+    if(!degustation.users.includes(userId)) {
+      degustation.users.push(userId);
+      await updateDegustation(degustation.id, degustation);
+    }
     const index = degustation.users.findIndex(user => user === userId);
     if(index !== -1) {
       const x = 10 + index;
-      sheet.getCell(y, x).value = rate.toString().replace('.',',');
+      sheet.getCell(y, x).value = Number(rate);
       sheet.getCell(0, x).value = userName;
       await sheet.saveUpdatedCells();
     }

@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import Beer from "./Beer";
 import {Container, Button, Row, Col} from "react-bootstrap";
 import {updateBeer, searchBeerOnUntappd, removeBeerFromDegustation} from "../services/Beer";
-import {exportDegustationToGoogleSheet} from "../services/Degustation";
+import {exportAllRates, exportDegustationToGoogleSheet} from "../services/Degustation";
 import AskBeerRate from "./AskBeerRate";
 import AddBeer from "./AddBeer";
 import Popup from "reactjs-popup";
@@ -189,7 +189,16 @@ const Degustation = ({
             <a href={`https://docs.google.com/spreadsheets/d/${degustation.id}/edit`} target="_blank">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
             </a>
-            { DEGUSTATION_TYPE_EDIT === mode ? <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button> :''}
+            { DEGUSTATION_TYPE_EDIT === mode ?
+                <div>
+                <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>
+                    <Button onClick={() =>
+                        exportAllRates(degustation)
+                            .then(() => {})
+                            .catch(() => {})
+                    }>Export Rates</Button>
+                </div>
+                :''}
           </div>
           {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} user={user} /> : '' }
           <Container fluid>
