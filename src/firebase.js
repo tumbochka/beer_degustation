@@ -4,7 +4,7 @@ import '@firebase/messaging';
 
 // If you enabled Analytics in your project, add the Firebase SDK for Analytics
 import "firebase/analytics";
-
+import { getMessaging } from "firebase/messaging/sw";
 // Add the Firebase products that you want to use
 import "firebase/auth";
 import "firebase/firestore";
@@ -15,16 +15,16 @@ const firebaseConfig = {
   databaseURL: "https://beer-degustation.firebaseio.com",
   projectId: "beer-degustation",
   storageBucket: "beer-degustation.appspot.com",
-//  messagingSenderId: "1058720130453",
+  messagingSenderId: "1058720130453",
   appId: "1:1058720130453:web:7dc1000cd81db0be68829c"
 };
 
-firebase.initializeApp(firebaseConfig);
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+export const messaging = getMessaging(firebaseApp);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
-//export const messaging = firebase.messaging();
 
 firestore.enablePersistence().catch(err => {
   if (err.code === 'failed-precondition') {
