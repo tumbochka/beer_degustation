@@ -137,6 +137,34 @@ export const updateDegustation = async (degustationId: string, degustation: Degu
   return degustation;
 }
 
+export const deleteBeerRate = async (
+  degustationId: string,
+  beerId: string,
+  userId: string
+): Promise<Degustation> => {
+  const degustation = await getDegustation(degustationId);
+  if(!degustation) {
+    throw new ValidationError("Degustation doesn't exist: " + degustationId);
+  }
+  const user = await getUser(userId);
+  if(!user) {
+    throw new ValidationError("User doesn't exist: " + userId);
+  }
+  const beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
+  if(!beer) {
+    throw new ValidationError("Beer doesn't exist: " + beerId);
+  }
+  if (!beer.rates) {
+    beer.rates = [];
+  }
+  const rateIndex = beer.rates.findIndex((rateItem: Rate) => rateItem.user === userId);
+  if (rateIndex > -1) {
+    beer.rates.slice(rateIndex);
+  }
+
+  return await updateDegustation(degustationId, degustation);
+}
+
 export const rateDegustationBeer = async (
   degustationId: string,
   beerId: string,

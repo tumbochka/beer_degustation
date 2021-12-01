@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as rq from 'request';
 import * as cors from 'cors';
 import {
+  deleteBeerRate,
   exportDegustationToGoogle,
   fetchDegustationDataFromGoogleSheet,
   getDegustation,
@@ -137,6 +138,25 @@ export const rateBeer = functions.https.onRequest((request, response) => {
       const code = e instanceof ValidationError ? 400 : 500;
       response.status(code).send(e.message);
     }
+  });
+});
+
+export const deleteRate =  functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    const {degustationId, beerId, userId} = request.body.data;
+    try {
+      deleteBeerRate(degustationId, beerId, userId)
+        .then(degustation => response.send({data: degustation}))
+        .catch(e => {
+            const code = e instanceof ValidationError ? 400 : 500;
+            response.status(code).send(e.message);
+          }
+        );
+    } catch (e) {
+      const code = e instanceof ValidationError ? 400 : 500;
+      response.status(code).send(e.message);
+    }
+
   });
 });
 
