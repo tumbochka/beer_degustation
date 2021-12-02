@@ -1,4 +1,4 @@
-import React, {cloneElement, useState} from "react";
+import React, {useState} from "react";
 import Beer from "./Beer";
 import {Container, Button, Row, Col, Form} from "react-bootstrap";
 import {updateBeer, searchBeerOnUntappd, removeBeerFromDegustation} from "../services/Beer";
