@@ -35,7 +35,9 @@ export interface Degustation {
   id: string,
   title: string,
   date: Date,
+  avatar: string,
+  location: string,
   beers: Array<BeerItem>,
   users: Array<string>,
-  leading: string|null
+  leading: string|null,
 }

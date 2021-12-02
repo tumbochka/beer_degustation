@@ -1,11 +1,13 @@
-import React, {useState} from "react";
+import React, {cloneElement, useState} from "react";
 import Beer from "./Beer";
-import {Container, Button, Row, Col} from "react-bootstrap";
+import {Container, Button, Row, Col, Form} from "react-bootstrap";
 import {updateBeer, searchBeerOnUntappd, removeBeerFromDegustation} from "../services/Beer";
 import {exportAllRates, exportDegustationToGoogleSheet} from "../services/Degustation";
 import AskBeerRate from "./AskBeerRate";
 import AddBeer from "./AddBeer";
 import Popup from "reactjs-popup";
+import {updateDegustation} from "../persistence/Persistence";
+
 
 export const DEGUSTATION_TYPE_EDIT = 'edit';
 export const DEGUSTATION_TYPE_TAKE_PART = 'take_part';
@@ -17,6 +19,7 @@ const Degustation = ({
     sortCurrentDegustationBeers
   }) => {
 
+
   const [error, setError] = useState(null);
   const [beersToSelect, setBeersToSelect] = useState([]);
   const [beerToSelect, setBeerToSelect] = useState(null);
@@ -25,7 +28,15 @@ const Degustation = ({
   const [fetchingBeerDetails, setFetchingBeerDetails] = useState(false);
   const [beerToRate, setBeerToRate] = useState(null);
   const [beers, setBeers] = useState(degustation.beers);
+  const [formDisabled, setFormDisabled] = useState(false);
+  const [editDegustationProperties, setEditDegustationProperties] = useState(false);
+  const [degustationValues, setDegustationValues] = useState({location: degustation.location ?? '', avatar: degustation.avatar ?? ''});
 
+
+  const handleInputChange = e => {
+    const {name, value} = e.target;
+    setDegustationValues({...degustationValues, [name]: value});
+  }
 
   const pushToFoundBeers = beer => {
     if('object' == typeof beer) {
@@ -186,11 +197,78 @@ const Degustation = ({
               : ''
           }
           <div className="caption">
+            {degustation.avatar ?
+              <img className="beerLabel" src={degustation.avatar} />
+              : ''}
             <a href={`https://docs.google.com/spreadsheets/d/${degustation.id}/edit`} target="_blank">
             Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
             </a>
+          </div>
+          <div>
             { DEGUSTATION_TYPE_EDIT === mode ?
                 <div>
+                  {editDegustationProperties ?
+                    <div>
+                      <Form>
+                        <Form.Group as={Row}>
+                          <Form.Label column sm="1">
+                            Degustation Avatar
+                          </Form.Label>
+                          <Col>
+                            <Form.Control
+                              type="text"
+                              name="avatar"
+                              value={degustationValues.avatar}
+                              onChange={handleInputChange}
+                              disabled={formDisabled}
+                            />
+                          </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                          <Form.Label column sm="1">
+                            Degustation Location
+                          </Form.Label>
+                          <Col>
+                            <Form.Control
+                              type="text"
+                              name="location"
+                              value={degustationValues.location}
+                              onChange={handleInputChange}
+                              disabled={formDisabled}
+                            />
+                          </Col>
+                        </Form.Group>
+                      </Form>
+                      <Button onClick={() => {
+                        setFormDisabled(true);
+                        updateDegustation({...degustation, ...degustationValues})
+                          .then(() => {
+                            setEditDegustationProperties(false);
+                            window.location.reload();
+                          })
+                          .finally(() => {
+                            setFormDisabled(false);
+                          })
+                        ;
+                      }}>
+                        Save
+                      </Button>
+                      <Button onClick={() => {
+                        setEditDegustationProperties(false);
+                      }}>Cancel</Button>
+                    </div>
+
+                    :
+                    <div>
+                    <Button onClick={() => {
+                      setEditDegustationProperties(true);
+                    }}>
+                      Degustation Properties
+                    </Button>
+                    </div>
+                  }
+
+                  <br />
                 <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>
                     <Button onClick={() =>
                         exportAllRates(degustation)

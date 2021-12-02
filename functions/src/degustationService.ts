@@ -157,10 +157,8 @@ export const deleteBeerRate = async (
   if (!beer.rates) {
     beer.rates = [];
   }
-  const rateIndex = beer.rates.findIndex((rateItem: Rate) => rateItem.user === userId);
-  if (rateIndex > -1) {
-    beer.rates.slice(rateIndex);
-  }
+
+  beer.rates = beer.rates.filter((rateItem: Rate) => rateItem.user !== userId);
 
   return await updateDegustation(degustationId, degustation);
 }
