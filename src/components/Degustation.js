@@ -6,18 +6,18 @@ import {exportAllRates, exportDegustationToGoogleSheet} from "../services/Degust
 import AskBeerRate from "./AskBeerRate";
 import AddBeer from "./AddBeer";
 import Popup from "reactjs-popup";
-import {updateDegustation} from "../persistence/Persistence";
+import DegustationProperties from "./DegustationProperties";
 
 
 export const DEGUSTATION_TYPE_EDIT = 'edit';
 export const DEGUSTATION_TYPE_TAKE_PART = 'take_part';
 
 const Degustation = ({
-    user,
-    degustation,
-    mode,
-    sortCurrentDegustationBeers
-  }) => {
+                       user,
+                       degustation,
+                       mode,
+                       sortCurrentDegustationBeers
+                     }) => {
 
 
   const [error, setError] = useState(null);
@@ -28,15 +28,7 @@ const Degustation = ({
   const [fetchingBeerDetails, setFetchingBeerDetails] = useState(false);
   const [beerToRate, setBeerToRate] = useState(null);
   const [beers, setBeers] = useState(degustation.beers);
-  const [formDisabled, setFormDisabled] = useState(false);
-  const [editDegustationProperties, setEditDegustationProperties] = useState(false);
-  const [degustationValues, setDegustationValues] = useState({location: degustation.location ?? '', avatar: degustation.avatar ?? ''});
 
-
-  const handleInputChange = e => {
-    const {name, value} = e.target;
-    setDegustationValues({...degustationValues, [name]: value});
-  }
 
   const pushToFoundBeers = beer => {
     if('object' == typeof beer) {
@@ -83,9 +75,9 @@ const Degustation = ({
         foundBeers.filter(beer => beer.beer.bid)
           .map(
             beer => updateBeer(degustation, beer)
-                    .then(degustation => {
-                      setBeers(degustation.beers);
-                    })))
+              .then(degustation => {
+                setBeers(degustation.beers);
+              })))
         .then(() => {
           setFoundBeers([]);
           setMask(null);
@@ -129,9 +121,9 @@ const Degustation = ({
   const renderBeerForSelection = (beers) => {
     return beers.map(beer => {
       const onClick = () => {
-            pushToFoundBeers(beer);
-            setBeerToSelect(null);
-          };
+        pushToFoundBeers(beer);
+        setBeerToSelect(null);
+      };
 
       return (
         <Beer
@@ -189,11 +181,11 @@ const Degustation = ({
         <div>
           {
             beerToRate ?
-            <Popup position="center center" defaultOpen={true} open={!!beerToRate} closeOnDocumentClick={false}>
-              <AskBeerRate degustation={degustation} beer={beerToRate} user={user} refreshBeers={refreshBeers} onClose={ () => {
-                setBeerToRate(null)
-              }} />
-            </Popup>
+              <Popup position="center center" defaultOpen={true} open={!!beerToRate} closeOnDocumentClick={false}>
+                <AskBeerRate degustation={degustation} beer={beerToRate} user={user} refreshBeers={refreshBeers} onClose={ () => {
+                  setBeerToRate(null)
+                }} />
+              </Popup>
               : ''
           }
           <div className="caption">
@@ -201,82 +193,23 @@ const Degustation = ({
               <img className="beerLabel" src={degustation.avatar} />
               : ''}
             <a href={`https://docs.google.com/spreadsheets/d/${degustation.id}/edit`} target="_blank">
-            Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
+              Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
             </a>
           </div>
           <div>
             { DEGUSTATION_TYPE_EDIT === mode ?
-                <div>
-                  {editDegustationProperties ?
-                    <div>
-                      <Form>
-                        <Form.Group as={Row}>
-                          <Form.Label column sm="1">
-                            Degustation Avatar
-                          </Form.Label>
-                          <Col>
-                            <Form.Control
-                              type="text"
-                              name="avatar"
-                              value={degustationValues.avatar}
-                              onChange={handleInputChange}
-                              disabled={formDisabled}
-                            />
-                          </Col>
-                        </Form.Group>
-                        <Form.Group as={Row}>
-                          <Form.Label column sm="1">
-                            Degustation Location
-                          </Form.Label>
-                          <Col>
-                            <Form.Control
-                              type="text"
-                              name="location"
-                              value={degustationValues.location}
-                              onChange={handleInputChange}
-                              disabled={formDisabled}
-                            />
-                          </Col>
-                        </Form.Group>
-                      </Form>
-                      <Button onClick={() => {
-                        setFormDisabled(true);
-                        updateDegustation({...degustation, ...degustationValues})
-                          .then(() => {
-                            setEditDegustationProperties(false);
-                            window.location.reload();
-                          })
-                          .finally(() => {
-                            setFormDisabled(false);
-                          })
-                        ;
-                      }}>
-                        Save
-                      </Button>
-                      <Button onClick={() => {
-                        setEditDegustationProperties(false);
-                      }}>Cancel</Button>
-                    </div>
+              <div>
+                <DegustationProperties degustation={degustation} />
 
-                    :
-                    <div>
-                    <Button onClick={() => {
-                      setEditDegustationProperties(true);
-                    }}>
-                      Degustation Properties
-                    </Button>
-                    </div>
-                  }
-
-                  <br />
+                <br />
                 <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>
-                    <Button onClick={() =>
-                        exportAllRates(degustation)
-                            .then(() => {})
-                            .catch(() => {})
-                    }>Export Rates</Button>
-                </div>
-                :''}
+                <Button onClick={() =>
+                  exportAllRates(degustation)
+                    .then(() => {})
+                    .catch(() => {})
+                }>Export Rates</Button>
+              </div>
+              :''}
           </div>
           {DEGUSTATION_TYPE_EDIT === mode ? <AddBeer degustation={degustation} refreshBeers={refreshBeers} user={user} /> : '' }
           <Container fluid>
