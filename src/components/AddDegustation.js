@@ -1,20 +1,17 @@
 import React, {useState}  from "react";
 import {Button, Col, Form, Row} from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import {updateDegustation} from "../persistence/Persistence";
+import {createDegustation} from "../persistence/Persistence";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-const DegustationProperties = ({degustation}) => {
+const AddDegustation = () => {
   const [formDisabled, setFormDisabled] = useState(false);
   const [editDegustationProperties, setEditDegustationProperties] = useState(false);
   const [degustationValues, setDegustationValues] = useState({
-    title: degustation.title,
-    location: degustation.location ?? '',
-    avatar: degustation.avatar ?? '',
-    date: degustation.date ?
-      (degustation.date.seconds ? new Date(degustation.date.seconds * 1000) : new Date(degustation.date))
-      : new Date()
+    location:  '',
+    avatar: '',
+    date: new Date()
   });
 
   const handleInputChange = e => {
@@ -92,10 +89,10 @@ const DegustationProperties = ({degustation}) => {
           if(degustationValues.date) {
             degustationValues.date = degustationValues.date.toISOString();
           }
-          updateDegustation({...degustation, ...degustationValues})
+          createDegustation(degustationValues)
             .then(() => {
               setEditDegustationProperties(false);
-              window.location.reload();
+              // window.location.reload();
             })
             .finally(() => {
               setFormDisabled(false);
@@ -114,7 +111,7 @@ const DegustationProperties = ({degustation}) => {
         <Button onClick={() => {
           setEditDegustationProperties(true);
         }}>
-          Degustation Properties
+          New Degustation
         </Button>
       </div>
     }
@@ -122,4 +119,4 @@ const DegustationProperties = ({degustation}) => {
 
 };
 
-export default DegustationProperties;
+export default AddDegustation;

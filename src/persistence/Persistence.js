@@ -74,11 +74,24 @@ export const updateDegustation = async (degustation) => {
   const updateClientDegustation = firebase.functions().httpsCallable('updateClientDegustation');
   console.log('updating', degustation);
   try {
-    const updateDegustation = await updateClientDegustation({degustation: degustation});
+    const updateDegustation = await updateClientDegustation({degustation});
 
     return updateDegustation.data;
   } catch (err) {
     console.error("Error updating degustation", err);
+    throw err;
+  }
+}
+
+export const createDegustation = async (date, title, avatar, location) => {
+  const createDegustation = firebase.functions().httpsCallable('createDegustation');
+  try {
+    const degustation = await createDegustation(date, title, avatar, location);
+
+    return degustation.data;
+  } catch (err) {
+    console.error("Error creating degustation", err);
+    throw err;
   }
 }
 

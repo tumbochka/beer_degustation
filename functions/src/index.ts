@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as rq from 'request';
 import * as cors from 'cors';
 import {
+  createNewDegustation,
   deleteBeerRate,
   exportDegustationToGoogle,
   fetchDegustationDataFromGoogleSheet,
@@ -225,6 +226,18 @@ export const setDegustationLeading = functions.https.onRequest((request, respons
         response.status(500).send(e.message);
       });
   })
+});
+
+export const createDegustation =   functions.https.onRequest((request, response) => {
+  corsHandler(request, response, () => {
+    if ('POST' !== request.method) {
+      response.status(400).send('Only POST allowed');
+    }
+    const {date, title, avatar, location} = request.body.data;
+    createNewDegustation(date,title, avatar, location)
+      .then(degustation => response.send({data: degustation}))
+      .catch(e => response.status(500).send(e.message));
+  });
 });
 
 export const updateClientDegustation =  functions.https.onRequest((request, response) => {

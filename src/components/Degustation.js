@@ -29,6 +29,8 @@ const Degustation = ({
   const [beerToRate, setBeerToRate] = useState(null);
   const [beers, setBeers] = useState(degustation.beers);
 
+  const getDegustationDate = () => degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString();
+
 
   const pushToFoundBeers = beer => {
     if('object' == typeof beer) {
@@ -68,6 +70,7 @@ const Degustation = ({
     console.log('fetching beers details', fetchingBeerDetails);
     console.log('beers', beers.length);
     console.log('found beers', foundBeers.length);
+
     if (false === fetchingBeerDetails && beers.length === foundBeers.length) {
       setFetchingBeerDetails(true);
       setMask('Fetching beer details...');
@@ -138,7 +141,9 @@ const Degustation = ({
     });
   }
 
-  fetchAllBeersDetailsFromUntappd();
+  if(beers.length > 0) {
+    fetchAllBeersDetailsFromUntappd();
+  }
 
   if(beersToSelect.length > 0 && !beerToSelect) {
     setBeerToSelect(beersToSelect.pop());
@@ -193,13 +198,13 @@ const Degustation = ({
               <img className="beerLabel" src={degustation.avatar} />
               : ''}
             <a href={`https://docs.google.com/spreadsheets/d/${degustation.id}/edit`} target="_blank">
-              Degustation: {degustation.date.seconds ? new Date(degustation.date.seconds * 1000).toDateString() : new Date(degustation.date).toDateString()}, {degustation.title}
+              Degustation: {getDegustationDate()} {degustation.title}
             </a>
           </div>
           <div>
             { DEGUSTATION_TYPE_EDIT === mode ?
               <div>
-                <DegustationProperties degustation={degustation} />
+                <DegustationProperties degustation={degustation}  />
 
                 <br />
                 <Button onClick={searchAllBeersOnUntappd}>Update all beers from untappd</Button>

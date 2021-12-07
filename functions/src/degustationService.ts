@@ -8,6 +8,7 @@ import {checkInBeer} from "./untappdService";
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const {google} = require('googleapis');
 
 export const exportDegustationToGoogle = async (docId: string, degustation: Degustation) => {
   const doc = new GoogleSpreadsheet(docId);
@@ -40,6 +41,73 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
   await sheet.saveUpdatedCells();
 };
 
+export const createNewDegustation = async (date: Date, title: string, avatar: string, location: string) => {
+
+  const folder = '1GJh7OAqzh8i0yCqRcj-dMvuK9tA9KYLD'; // 2021 -> change in 2022
+  const templateId = '1QIyJoW9FzR8JXlYK3wiZtPUv9pYGO1jsYg2aMIzGbaM'; //template
+
+  const auth = new google.auth.JWT({
+    email: 'degustator@beer-degustation.iam.gserviceaccount.com',
+    key:  '-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDJgGPfUbFq4jQk\\nyGJOHTAenP1RxfehhqWhu1Cb4ry3q58Gl8bQU841RP1Z6ox0EUTqRuliwHiGOe3c\\nHmQAXFdcncuMASZYc1J5H3s8GCqiwpmyysltUHkrgcWLW8X3h2KP9SVJCprRY9K/\\nuaj6osW9lIbM/bNh1wDjubAMcM325UQJ1v/zQgs35EtIlLYoM+fJJcrJj/J21nWx\\n+G9F1iqkfAulhWPLDSmatVaYMFwRA0bjA92+iTpVze60oth+X2SZG7my2BiMvVaZ\\nVuPv8lJFS1bACkaMxcqb1n84ALhAU4+kDkLBM/5ZifiHwoouXb/nuq8gMwMPrSTH\\nnxzyF9MzAgMBAAECggEAALcSKzJ990nZSYa4TAG7c/yYhzQ8xr9Flgk8vJaKPK79\\nPhTddjzBMrZ+cCiMllqDN/uD+TuDDFfYDY6kK/q+gVWGB8LvZpwE/WHDGlH3ZqcQ\\nCJRoXiC23lDG//7KU4rrG7Bj3G002vuAxUQ+l0fyfOLQSvQRqdl2yRvg5DAPAah6\\n6Lb4WeoCmFRbFGeC/5pf1FL/hRjoswtWpowmILxLUzKWbqNr+6sGZFm7zwPHaabq\\nkUdS/oZbemHFno//aqgcZO2YaGdWMAoOVjhg6BemK8HlTOeplk0MpgNq9zr9t6wB\\nd5zuG1JlEV/AsWc4RE0dk/ugPH+0gxXUPVoI+cKNUQKBgQDuqkW8seRdbLyt5KHp\\nk3/jE+LZyIgFBIPUs57qWoB/4xDGfT/AcOVNsmO1cnFWW23LCNV0gbzxwMOiBrnw\\nEiPhtybRVKwEX54LKUC6nOipHHsmQ9Q4gNLdnoFz4zLFePbmy+SwqxqimzR7eEFS\\nZPoj4mwF5XSxAZcXElwGTEpL/wKBgQDYIxl6OK5O5IYlCQsnKWZNXAoCHv0lDICs\\npMUHYJNd4V6ZZnVA6ACOxZtkf++g0O64G/OU6Xkl+MugFzepB58Y2lQJQlqxBunr\\ncPuKkgFXt2/ZwK/hacaAeS4n4d2b8FOBxRQf/PGxuEBO2wc2wo793vK9z3YeS7xp\\nxSVVi8cIzQKBgQCGidXmGSHyyGlUXZ4oXc2p5Hvs6O5EZdcrAFaFJZ9qeEXsno5h\\nnUKmGfm7P1hEpiWuXrx1gO1SGqgtnj0S6CbyBp0LQ//0NzKQeCDVEb7WFggV+gaY\\nE4bLB59SBLGKQDZuxGGWdd397CAZuiCYofOgZvMeH8s4PP0/NEpMApWfYQKBgBL8\\neld3NTCu+G22bqlhBKCVDjgDet9PStpfmwM745YinwnAq1opRytDhpP8fRNWZzH7\\nGpmhLMg+I70LbRNHHR20yB8MGiVk4xWQljgk/UM0VPn+6DRX810DyB8uwyXYpa1H\\nn63zrVOcSOHkcazIyIDand44pDqjEokEDXSHU9OdAoGAV5yw1dMA1Saxt5FHwwOT\\n7dTgsUYOhsOMe6uYF4lh80tbRtgKPo3cL6mLV7pNTkT7StyNNYDbzjClxj1WX3kn\\nys77VepkjNu7f0yCAsbReiE9+B8/6jZcKfMjNhkbVPOwDchuhPjeUmnC2iNKPov7\\n1difzVCNOKCnli9UQZyPlDI=\\n-----END PRIVATE KEY-----\\n'.replace(/\\n/g, '\n'),
+    scopes: [
+      'https://www.googleapis.com/auth/drive',
+      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/drive.appdata'
+    ]
+  });
+
+  const drive = google.drive({version: 'v3', auth});
+
+  const response = await drive.files.copy({
+    name: title,
+    fileId: templateId,
+    parents: [folder]
+  });
+
+  const id = response.data.id;
+
+  const doc = new GoogleSpreadsheet(id);
+  await doc.useServiceAccountAuth({
+    client_email: 'degustator@beer-degustation.iam.gserviceaccount.com',
+    private_key:  '-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDJgGPfUbFq4jQk\\nyGJOHTAenP1RxfehhqWhu1Cb4ry3q58Gl8bQU841RP1Z6ox0EUTqRuliwHiGOe3c\\nHmQAXFdcncuMASZYc1J5H3s8GCqiwpmyysltUHkrgcWLW8X3h2KP9SVJCprRY9K/\\nuaj6osW9lIbM/bNh1wDjubAMcM325UQJ1v/zQgs35EtIlLYoM+fJJcrJj/J21nWx\\n+G9F1iqkfAulhWPLDSmatVaYMFwRA0bjA92+iTpVze60oth+X2SZG7my2BiMvVaZ\\nVuPv8lJFS1bACkaMxcqb1n84ALhAU4+kDkLBM/5ZifiHwoouXb/nuq8gMwMPrSTH\\nnxzyF9MzAgMBAAECggEAALcSKzJ990nZSYa4TAG7c/yYhzQ8xr9Flgk8vJaKPK79\\nPhTddjzBMrZ+cCiMllqDN/uD+TuDDFfYDY6kK/q+gVWGB8LvZpwE/WHDGlH3ZqcQ\\nCJRoXiC23lDG//7KU4rrG7Bj3G002vuAxUQ+l0fyfOLQSvQRqdl2yRvg5DAPAah6\\n6Lb4WeoCmFRbFGeC/5pf1FL/hRjoswtWpowmILxLUzKWbqNr+6sGZFm7zwPHaabq\\nkUdS/oZbemHFno//aqgcZO2YaGdWMAoOVjhg6BemK8HlTOeplk0MpgNq9zr9t6wB\\nd5zuG1JlEV/AsWc4RE0dk/ugPH+0gxXUPVoI+cKNUQKBgQDuqkW8seRdbLyt5KHp\\nk3/jE+LZyIgFBIPUs57qWoB/4xDGfT/AcOVNsmO1cnFWW23LCNV0gbzxwMOiBrnw\\nEiPhtybRVKwEX54LKUC6nOipHHsmQ9Q4gNLdnoFz4zLFePbmy+SwqxqimzR7eEFS\\nZPoj4mwF5XSxAZcXElwGTEpL/wKBgQDYIxl6OK5O5IYlCQsnKWZNXAoCHv0lDICs\\npMUHYJNd4V6ZZnVA6ACOxZtkf++g0O64G/OU6Xkl+MugFzepB58Y2lQJQlqxBunr\\ncPuKkgFXt2/ZwK/hacaAeS4n4d2b8FOBxRQf/PGxuEBO2wc2wo793vK9z3YeS7xp\\nxSVVi8cIzQKBgQCGidXmGSHyyGlUXZ4oXc2p5Hvs6O5EZdcrAFaFJZ9qeEXsno5h\\nnUKmGfm7P1hEpiWuXrx1gO1SGqgtnj0S6CbyBp0LQ//0NzKQeCDVEb7WFggV+gaY\\nE4bLB59SBLGKQDZuxGGWdd397CAZuiCYofOgZvMeH8s4PP0/NEpMApWfYQKBgBL8\\neld3NTCu+G22bqlhBKCVDjgDet9PStpfmwM745YinwnAq1opRytDhpP8fRNWZzH7\\nGpmhLMg+I70LbRNHHR20yB8MGiVk4xWQljgk/UM0VPn+6DRX810DyB8uwyXYpa1H\\nn63zrVOcSOHkcazIyIDand44pDqjEokEDXSHU9OdAoGAV5yw1dMA1Saxt5FHwwOT\\n7dTgsUYOhsOMe6uYF4lh80tbRtgKPo3cL6mLV7pNTkT7StyNNYDbzjClxj1WX3kn\\nys77VepkjNu7f0yCAsbReiE9+B8/6jZcKfMjNhkbVPOwDchuhPjeUmnC2iNKPov7\\n1difzVCNOKCnli9UQZyPlDI=\\n-----END PRIVATE KEY-----\\n'.replace(/\\n/g, '\n')
+  });
+
+  let degDate = date;
+  if(typeof date.getMonth !== 'function') {
+    degDate = new Date(date);
+  }
+
+  await doc.updateProperties({ title: degDate.getMonth() + 1 + '-' + degDate.getDate() + ' ' + title});
+
+  const degustation = {
+    title: title,
+    date: date,
+    avatar: avatar,
+    location: location,
+    beers:  new Array<BeerItem>(),
+    users: [],
+    leading: null,
+    id: id
+  };
+
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault()
+    });
+  }
+  const firestore = admin.firestore();
+
+  const degustationRef = firestore.doc(`degustations/${id}`);
+  const snapshot = await degustationRef.get();
+  if (snapshot.exists) {
+    await degustationRef.update(degustation);
+  } else {
+    await degustationRef.create(degustation);
+  }
+
+  return degustation;
+}
+
 export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   if (!admin.apps.length) {
     admin.initializeApp({
@@ -68,7 +136,8 @@ export const fetchDegustationDataFromGoogleSheet = async (docId: string) => {
   const sheet = doc.sheetsByIndex[0]
 
   await sheet.loadCells('A1:AG50');
-  for (let i=1, notEmpty=true; (i<50 && notEmpty); ++i, notEmpty=(sheet.getCell(i, 2).value || sheet.getCell(i, 32).value)) {
+  let notEmpty=(sheet.getCell(1, 2).value || sheet.getCell(1, 32).value);
+  for (let i=1; (i<50 && notEmpty); ++i, notEmpty=(sheet.getCell(i, 2).value || sheet.getCell(i, 32).value)) {
     const beerItem = {
       volume: double(sheet.getCell(i, 8).value),
       id: uuidv4(),

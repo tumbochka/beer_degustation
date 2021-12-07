@@ -6,6 +6,7 @@ import {Container, Row, Col, Button} from "react-bootstrap";
 import {sortBeers} from "../services/Degustation";
 
 import firebase from "firebase";
+import AddDegustation from "./AddDegustation";
 // import {onMessageListener} from "../firebase";
 
 
@@ -14,7 +15,6 @@ const Degustations = ({user}) => {
   const [degustations, setDegustations] = useState(null);
   const [degustation, setDegustation] = useState(null);
   const [degustationMode, setDegustationMode] = useState(null);
-  const [closing, setClosing] = useState(false);
 
       const match = useMatch('/Degustations/:degustationId/:mode');
       if (degustations && match && !degustation) {
@@ -115,7 +115,7 @@ const Degustations = ({user}) => {
         </div> : (
             degustations ?
               <div>
-
+              <AddDegustation />
               <div className="table-action">
                   <Button onClick={() => {navigate('/DegustationSelector')}}>Import degustation</Button>
               </div>
