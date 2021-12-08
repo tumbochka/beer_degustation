@@ -4,6 +4,7 @@ import DatePicker from "react-datepicker";
 import {createDegustation} from "../persistence/Persistence";
 
 import "react-datepicker/dist/react-datepicker.css";
+import {instance} from "firebase-functions/lib/providers/database";
 
 const AddDegustation = () => {
   const [formDisabled, setFormDisabled] = useState(false);
@@ -33,7 +34,7 @@ const AddDegustation = () => {
             </Form.Label>
             <Col>
               <DatePicker
-                selected={degustationValues.date}
+                selected={('string' === typeof degustationValues.date  ? new Date(degustationValues.date) : degustationValues.date)}
                 onChange={handleDateChange}
                 disabled={formDisabled}
               />
@@ -86,13 +87,15 @@ const AddDegustation = () => {
         </Form>
         <Button onClick={() => {
           setFormDisabled(true);
-          if(degustationValues.date) {
-            degustationValues.date = degustationValues.date.toISOString();
-          }
-          createDegustation(degustationValues)
+          createDegustation(
+              degustationValues.date instanceof Date ?  degustationValues.date.toISOString(): degustationValues.date,
+              degustationValues.title,
+              degustationValues.avatar,
+              degustationValues.location
+          )
             .then(() => {
               setEditDegustationProperties(false);
-              // window.location.reload();
+              window.location.reload();
             })
             .finally(() => {
               setFormDisabled(false);

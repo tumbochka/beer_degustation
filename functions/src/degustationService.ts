@@ -47,8 +47,8 @@ export const createNewDegustation = async (date: Date, title: string, avatar: st
   const templateId = '1QIyJoW9FzR8JXlYK3wiZtPUv9pYGO1jsYg2aMIzGbaM'; //template
 
   const auth = new google.auth.JWT({
-    client_email: functions.config().google_service_account.email,
-    private_key:  functions.config().google_service_account.key.replace(/\\n/g, '\n'),
+    email: functions.config().google_service_account.email,
+    key:  functions.config().google_service_account.key.replace(/\\n/g, '\n'),
     scopes: [
       'https://www.googleapis.com/auth/drive',
       'https://www.googleapis.com/auth/drive.file',
