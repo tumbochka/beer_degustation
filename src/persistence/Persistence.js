@@ -86,7 +86,7 @@ export const updateDegustation = async (degustation) => {
 export const createDegustation = async (date, title, avatar, location) => {
   const createDegustation = firebase.functions().httpsCallable('createDegustation');
   try {
-    const degustation = await createDegustation(date, title, avatar, location);
+    const degustation = await createDegustation({date, title, avatar, location});
 
     return degustation.data;
   } catch (err) {
