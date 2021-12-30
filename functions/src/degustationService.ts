@@ -43,7 +43,7 @@ export const exportDegustationToGoogle = async (docId: string, degustation: Degu
 
 export const createNewDegustation = async (date: Date, title: string, avatar: string, location: string) => {
 
-  const folder = '1GJh7OAqzh8i0yCqRcj-dMvuK9tA9KYLD'; // 2021 -> change in 2022
+  const folder = '1xV7naawxrTF0qsMq6eReSn6sBghUhWFf'; // 2022 -> change in 2023
   const templateId = '1QIyJoW9FzR8JXlYK3wiZtPUv9pYGO1jsYg2aMIzGbaM'; //template
 
   const auth = new google.auth.JWT({
