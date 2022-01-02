@@ -15,6 +15,8 @@ import {getUser} from "./userService";
 import {upload} from "./upload";
 import {saveClientToken} from "./message";
 
+import {ValidationError} from "./validationError";
+
 const corsHandler = cors({origin: true});
 
 // // Start writing Firebase Functions

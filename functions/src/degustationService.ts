@@ -4,6 +4,7 @@ import {BeerItem, Degustation, Rate} from "./types";
 import {sendNotificationToAllClients} from "./message";
 import {getUser} from "./userService";
 import {checkInBeer} from "./untappdService";
+import {ValidationError} from "./validationError";
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
@@ -211,25 +212,40 @@ export const deleteBeerRate = async (
   beerId: string,
   userId: string
 ): Promise<Degustation> => {
-  const degustation = await getDegustation(degustationId);
-  if(!degustation) {
-    throw new ValidationError("Degustation doesn't exist: " + degustationId);
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault()
+    });
   }
+
+  const firestore = admin.firestore();
   const user = await getUser(userId);
   if(!user) {
     throw new ValidationError("User doesn't exist: " + userId);
   }
-  const beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
-  if(!beer) {
-    throw new ValidationError("Beer doesn't exist: " + beerId);
-  }
-  if (!beer.rates) {
-    beer.rates = [];
-  }
+  const degustationDocRef = firestore.doc(`degustations/${degustationId}`);
 
-  beer.rates = beer.rates.filter((rateItem: Rate) => rateItem.user !== userId);
+  return await firestore.runTransaction(async (transaction: any) => {
+    const degustationDoc = await transaction.get(degustationDocRef);
+    if (!degustationDoc.exists) {
+      throw new ValidationError("Degustation doesn't exist: " + degustationId);
+    }
+    const degustation = degustationDoc.data();
 
-  return await updateDegustation(degustationId, degustation);
+    const beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
+    if(!beer) {
+      throw new ValidationError("Beer doesn't exist: " + beerId);
+    }
+    if (!beer.rates) {
+      beer.rates = [];
+    }
+
+    beer.rates = beer.rates.filter((rateItem: Rate) => rateItem.user !== userId);
+
+    transaction.update(degustationDocRef, degustation);
+
+    return degustation;
+  });
 }
 
 export const rateDegustationBeer = async (
@@ -239,41 +255,68 @@ export const rateDegustationBeer = async (
   rate: number,
   shout: string
 ): Promise<Degustation> => {
-  const degustation = await getDegustation(degustationId);
-  if(!degustation) {
-    throw new ValidationError("Degustation doesn't exist: " + degustationId);
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault()
+    });
   }
+
+  const firestore = admin.firestore();
+
   const user = await getUser(userId);
   if(!user) {
     throw new ValidationError("User doesn't exist: " + userId);
   }
 
-  const beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
-  if(!beer) {
-    throw new ValidationError("Beer doesn't exist: " + beerId);
-  }
-  if (!beer.rates) {
-    beer.rates = [];
-  }
-  const rateIndex = beer.rates.findIndex((rateItem: Rate) => rateItem.user === userId);
-  if (-1 === rateIndex) {
-    beer.rates.push({user: userId, rate: rate, shout: shout});
-    if (user.untappdAccessToken && beer.beer.bid) {
-      checkInBeer(user.untappdAccessToken, beer.beer.bid.toString(), rate/2, shout)
+  const degustationDocRef = firestore.doc(`degustations/${degustationId}`);
+
+  let beer: BeerItem|null;
+  const updatedDegustation =  await firestore.runTransaction(async (transaction: any) => {
+    const degustationDoc = await transaction.get(degustationDocRef);
+    if (!degustationDoc.exists) {
+      throw new ValidationError("Degustation doesn't exist: " + degustationId);
     }
-  } else {
-    beer.rates[rateIndex] = {user: userId, rate: rate, shout: shout};
+    const degustation = degustationDoc.data();
+    beer = degustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
+    if (!beer) {
+      throw new ValidationError("Beer doesn't exist: " + beerId);
+    }
+    if (!beer.rates) {
+      beer.rates = [];
+    }
+    console.log('Rating beer', beer);
+    const rateIndex = beer.rates.findIndex((rateItem: Rate) => rateItem.user === userId);
+    if (-1 === rateIndex) {
+      beer.rates.push({user: userId, rate: rate, shout: shout});
+    } else {
+      beer.rates[rateIndex] = {user: userId, rate: rate, shout: shout};
+    }
+
+    transaction.update(degustationDocRef, degustation);
+
+
+    return degustation;
+  });
+
+  beer = updatedDegustation.beers.find((beerItem: BeerItem) => beerItem.id === beerId);
+
+  if (user.untappdAccessToken && beer?.beer?.bid) {
+    console.log('Untapping', beer)
+    checkInBeer(user.untappdAccessToken, beer.beer.bid.toString(), rate / 2, shout);
   }
 
-  await setRateToGoogle(
-    degustation,
-    beer.beer.bid,
-    userId,
-    user.untappdName ? user.untappdName : user.firstName,
-    rate
-  );
+  if(beer?.beer?.bid) {
+    console.log('Setting to google', beer);
+    await setRateToGoogle(
+        updatedDegustation,
+        beer.beer.bid,
+        userId,
+        user.untappdName ? user.untappdName : user.firstName,
+        rate
+    );
+  }
 
-  return await updateDegustation(degustationId, degustation);
+  return updatedDegustation;
 }
 
 export const setAllRatesToGoogle = async (degustation: Degustation) => {

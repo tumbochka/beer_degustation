@@ -92,7 +92,7 @@ export const checkInBeer = (userAccessToken: string, beerId: string, rating: num
       rating: rating
     }
   };
-console.log(requestOptions);
+
   rq.post(requestOptions, (err, resp, body) => {
     console.log(body);
     if(err) {
